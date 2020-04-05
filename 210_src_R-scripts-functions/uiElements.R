@@ -34,33 +34,14 @@ fnUI_eagleEye <- function(){
     fluidPage(
         fluidRow(column(width = 12,uiOutput("valueBoxes_eagle"))
              ,fluidRow(
-                    # column(width=2
-                    #        ,box(
-                    #            hr()                           
-                    #            ,dateInput("dtEagle_start",label = "Start Date",value = "2019-01-01",format = "dd-M-yy")
-                    #            ,dateInput("dtEagle_end",label = "End Date",format = "dd-M-yy")
-                    #            ,hr()
-                    #            ,checkboxGroupInput('chkbEagle_movAvgs',label = "Moving averages",choices = c("50-day MA","100-day MA","200-day MA"),inline = F)
-                    #            ,br()
-                    #            ,width = "100%"
-                    #            ,status = "info"
-                    #            ,solidHeader = T
-                    #            ,title = "Parameter Selection")
-                    #     )
-                    column(width = 12
-                            ,box(plotOutput("plotEagle_index",height = PLOT_HEIGHT)  %>%  withSpinner()
-                                 ,collapsible = T,solidHeader = T,width = NULL,status = "info",title ="Indices")
+                    column(width = 12,uiOutput("box_plotEagleindex")
                             ,fluidRow(
-                                column(width = 6
-                                       ,box(plotOutput("plotEagle_commodity",height = PLOT_HEIGHT * 0.7) %>%  withSpinner()
-                                            ,collapsible = T,solidHeader = T,width = NULL,status = "info",title="Commodities"))
-                                ,column(width = 6
-                                        ,box(plotOutput("plotEagle_currency",height = PLOT_HEIGHT * 0.7)  %>%  withSpinner()
-                                             ,collapsible = T,solidHeader = T,width = NULL,status = "info",title="Currencies"))
-                                #Disable flickering during Refresh
-                                ,tags$style(type="text/css", "#plotEagle_index.recalculating { opacity: 1.0; }")
-                                ,tags$style(type="text/css", "#plotEagle_commodity.recalculating { opacity: 1.0; }")
-                                ,tags$style(type="text/css", "#plotEagle_currency.recalculating { opacity: 1.0; }")
+                                column(width = 6,uiOutput("box_plotEaglecommodity"))
+                                ,column(width = 6,uiOutput("box_plotEaglecurrency"))
+                                # #Disable flickering during Refresh
+                                # ,tags$style(type="text/css", "#plotEagle_index.recalculating { opacity: 1.0; }")
+                                # ,tags$style(type="text/css", "#plotEagle_commodity.recalculating { opacity: 1.0; }")
+                                # ,tags$style(type="text/css", "#plotEagle_currency.recalculating { opacity: 1.0; }")
                                 )
                             )
                     )
@@ -74,25 +55,10 @@ fnUI_myShares <- function(){
     fluidPage(
         fluidRow(column(width = 12,uiOutput("valueBoxes_myShares"))
                  ,fluidRow(
-                     # column(width=2
-                     #        ,box(
-                     #            hr()
-                     #            ,dateInput("dtmyShares_start",label = "Start Date",value = "2019-01-01",format = "dd-M-yy",autoclose = F)
-                     #             ,dateInput("dtmyShares_end",label = "End Date",format = "dd-M-yy")
-                     #             ,hr()
-                     #             ,checkboxGroupInput('chkbmyShares_movAvgs',label = "Moving averages",choices = c("50-day MA","100-day MA","200-day MA"),inline = F)
-                     #             ,br()
-                     #             ,width = "100%"
-                     #             ,status = "info"
-                     #             ,solidHeader = T
-                     #             ,title = "Parameter Selection")
-                     # )
-                     column(width = 12
-                             ,box(plotOutput("plotmyShares",height = PLOT_HEIGHT*1.5)  %>%  withSpinner()
-                                  ,collapsible = T,solidHeader = T,width = NULL,status = "info",title ="My Shares")
-                             #Disable flickering during Refresh
-                             ,tags$style(type="text/css", "#plotmyShares.recalculating { opacity: 1.0; }")
-                             )
+                     column(width = 12,uiOutput("box_mySharesPlot")
+                            #Disable flickering during Refresh
+                            ,tags$style(type="text/css", "#plotmyShares.recalculating { opacity: 1.0; }")
+                            )
                      )
                  )
         

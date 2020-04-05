@@ -56,28 +56,58 @@ server <- function(input,output,session){
         })
       })
       
-     #plots
+     # #Static heights
+     #  lapply(c("index","commodity","currency"),function(i){
+     #    if(i %in% c("commodity","currency")){
+     #      PLOT_HEIGHT <- PLOT_HEIGHT * 0.8
+     #    }
+     #    output[[paste("plotEagle",i,sep="_")]] <- renderPlot({ 
+     #      if(input$radio_realTimeYN=="Yes"){
+     #        fn_plotRealTime(DT_realTime = DT_realTime()
+     #                        ,DT_stats = DT_stats()[type==i]
+     #                        ,varSymbols=NULL
+     #                        ,DT_myShares=NULL) 
+     #      }else{
+     #        fn_plotYTD(DT_hist=DT_hist()[type==i]
+     #                   ,dt_start=input$dt_start
+     #                   ,dt_end=input$dt_end
+     #                   ,varSymbols=NULL
+     #                   ,DT_myShares=NULL) 
+     #      }
+     #    })
+     #    
+     #    })
+      
+      
+      #Plots with dynamic heights within box
       lapply(c("index","commodity","currency"),function(i){
-        if(i %in% c("commodity","currency")){
-          PLOT_HEIGHT <- PLOT_HEIGHT * 0.8
-        }
-        output[[paste("plotEagle",i,sep="_")]] <- renderPlot({ 
-          if(input$radio_realTimeYN=="Yes"){
-            fn_plotRealTime(DT_realTime = DT_realTime()
-                            ,DT_stats = DT_stats()[type==i]
-                            ,varSymbols=NULL
-                            ,DT_myShares=NULL) 
+        
+        var_plot <- reactive({ if(input$radio_realTimeYN=="Yes"){
+          fn_plotRealTime(DT_realTime = DT_realTime()
+                          ,DT_stats = DT_stats()[type==i]
+                          ,varSymbols=NULL
+                          ,DT_myShares=NULL) 
           }else{
             fn_plotYTD(DT_hist=DT_hist()[type==i]
                        ,dt_start=input$dt_start
                        ,dt_end=input$dt_end
                        ,varSymbols=NULL
                        ,DT_myShares=NULL) 
-          }
+            }
+          })
+        
+        
+        var_dynamicHeight <- reactive(gg_facet_nrow(var_plot()))
+        
+        output[[paste("box_plotEagle",i,sep="")]] <- renderUI({
+          
+          box(collapsible = T,solidHeader = T,width = NULL,status = "info",title =i
+              ,renderPlot({ var_plot() },height = function(){var_dynamicHeight()*FACET_ROW_HEIGHT}))
+          
         })
         
-        })  
-        
+          
+        })
 
     }) #end observe
     
@@ -119,21 +149,51 @@ server <- function(input,output,session){
        })
 
        #Plots
-       output$plotmyShares <- renderPlot({ 
+       
+       #Static height
+       # output$plotmyShares <- renderPlot({ 
+       #   if(input$radio_realTimeYN=="Yes"){
+       #     fn_plotRealTime(DT_realTime=DT_realTime()
+       #                     ,DT_stats=DT_stats()
+       #                     ,varSymbols=NULL
+       #                     ,DT_myShares=DT_myShares()) 
+       #     }else{
+       #       fn_plotYTD(DT_hist=DT_hist()
+       #                               ,dt_start=input$dt_start
+       #                               ,dt_end=input$dt_end
+       #                               ,varSymbols=NULL
+       #                               ,DT_myShares=DT_myShares()) 
+       #       }
+       # })
+       
+       
+       #Dynamic height plot inside a box
+       var_plot <- reactive({
          if(input$radio_realTimeYN=="Yes"){
            fn_plotRealTime(DT_realTime=DT_realTime()
-                           ,DT_stats=DT_stats()
-                           ,varSymbols=NULL
-                           ,DT_myShares=DT_myShares()) 
-           }else{
-             fn_plotYTD(DT_hist=DT_hist()
-                                     ,dt_start=input$dt_start
-                                     ,dt_end=input$dt_end
-                                     ,varSymbols=NULL
-                                     ,DT_myShares=DT_myShares()) 
-             }
+                                       ,DT_stats=DT_stats()
+                                       ,varSymbols=NULL
+                                       ,DT_myShares=DT_myShares()) 
+         }else{
+           fn_plotYTD(DT_hist=DT_hist()
+                                  ,dt_start=input$dt_start
+                                  ,dt_end=input$dt_end
+                                  ,varSymbols=NULL
+                                  ,DT_myShares=DT_myShares()) 
+         }
+         
        })
-
+         
+       var_dynamicHeight <- reactive(gg_facet_nrow(var_plot()))
+       
+       output$box_mySharesPlot <- renderUI({
+         
+         box(collapsible = T,solidHeader = T,width = NULL,status = "info",title ="My Shares"
+             ,renderPlot({ var_plot() },height = function(){var_dynamicHeight()*FACET_ROW_HEIGHT}))
+         
+       })
+       
+       
      }) #end observe
     
     

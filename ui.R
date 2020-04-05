@@ -7,9 +7,6 @@ shinydashboard::dashboardPage(
     ,header = dashboardHeader(
       title = "FiMATS"
       ,titleWidth = sideBarWidth
-      # ,tags$li("Financial Markets Analysis and Tracking System"
-      #          ,class = "dropdown"
-      #          ,style = "padding: 10px 120px 0px 0px;")
       ,dropdownMenu(type="notifications"
                     ,headerText = "Information"
                     ,icon = icon("info")
@@ -73,6 +70,8 @@ shinydashboard::dashboardPage(
         ,tabItem(tabName = "menu_dataRefresh",fnUI_dataRefresh())
 
       )
+      #value box height
+      ,tags$head(tags$style(HTML(".small-box {height: 80px}")))
       
       )
     )

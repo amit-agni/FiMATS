@@ -9,6 +9,7 @@ p_load(here,data.table,tidyverse,tictoc,shiny,shinydashboard,shinybusy,kableExtr
        ,tidyquant
        ,quantmod
        ,batchtools
+       ,assertive.types #needed for gg_facet_nrow()
        )
 rm(list = ls())
 if(!require(cutlery)) { devtools::install_github("amit-agni/cutlery"); library(cutlery)}
@@ -22,14 +23,10 @@ DT_hist <- reactive(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds"))
 DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
 #DT_realTime <- reactive(readRDS(file=here::here("100_data_raw-input","DT_realTime.Rds")))
 
-# reactive_DTs <- reactiveValues(DT_hist = readRDS(file=here::here("100_data_raw-input","DT_hist.Rds"))
-#                                ,DT_stats = readRDS(file=here::here("100_data_raw-input","DT_stats.Rds"))
-#                                    ,DT_realTime =readRDS(file=here::here("100_data_raw-input","DT_realTime.Rds"))
-#                                   ,DT_myShares=readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds"))
-#                                )
 
 
 PLOT_HEIGHT <- 500
+FACET_ROW_HEIGHT <- 200
 
 
 
@@ -164,5 +161,16 @@ fnHelper_dateLabels <- function(x){
               ,x >=120 & x < 365*1.5 ~ "%b\n%y"
               ,TRUE ~ "%b\n%y"
     )
+}
+
+gg_facet_nrow <- function(p){
+    assertive.types::assert_is_any_of(p, 'ggplot')
+    p %>%
+        ggplot2::ggplot_build() %>%
+        magrittr::extract2('layout') %>% 
+        magrittr::extract2('layout') %>%
+        magrittr::extract2('ROW') %>%
+        unique() %>%
+        length()
 }
 
