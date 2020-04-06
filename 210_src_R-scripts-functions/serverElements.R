@@ -154,18 +154,32 @@ fn_srvDeepPopulateLOV <- function(input,output,session,DT_stats){
 
 
 
-
 fn_srvEaglePopulateLOV <- function(input,output,session,DT_stats){
     
+    
     output$boxEagle_additionalParameters <- renderUI({
+        
         box(collapsible = T,solidHeader = T,width = NULL,status = "info",title = "Additional Parameters"
             ,radioButtons("radioEagle_selectCategory",label = "Category"
                     ,choices = unique(DT_stats$category))
             ,selectInput("lovEagle_selectCountry",label = "Country"
                          ,choices = c('ALL',unique(DT_stats$country)))
             ,selectInput("lovEagle_selectSector",label = "Sector"
-                         ,choices = c('ALL',unique(DT_stats[category=='stock']$sector)))
+                         ,choices = c('ALL',unique(DT_stats$sector)))
             ,radioButtons("radioEagle_displayPerPage",label="Display per page",choices = c(5,10,20,"ALL"),inline = T,selected = "20"))
+    })
+    
+    observeEvent(input$radioEagle_selectCategory,{
+        req(input$radioEagle_selectCategory)
+        
+        updateSelectInput(session
+                          ,inputId = "lovEagle_selectCountry"
+                          ,choices=c('ALL',unique(DT_stats[category==input$radioEagle_selectCategory]$country)))
+        
+        updateSelectInput(session
+                          ,inputId = "lovEagle_selectSector"
+                          ,choices=c('ALL',unique(DT_stats[category==input$radioEagle_selectCategory]$sector)))
+        
     })
     
     

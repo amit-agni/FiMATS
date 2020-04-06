@@ -10,7 +10,11 @@ fnUI_dataRefresh <- function(){
                         #                     ,label = "For the symbols in the selected file, get"
                         #                     ,choices = c("Daily historical values","Financial Stats")
                         #                     ,inline = F)
-                        ,actionButton("ab_initialLoad","Load"))
+                        ,actionButton("ab_initialLoad","Load")
+            ,br()
+            ,br()
+            ,"Note : The file should be in CSV format and must have these columns : country,category,sector,symbol,name. 
+            All the columns except name are mandatory")
         ,box(collapsible = T,solidHeader = T,status = "primary",title ="Additional Data Processing"
              ,actionButton("ab_dataCatchup","Data catchup")
              ,actionButton("ab_summaryStats","Store Summary Stats")

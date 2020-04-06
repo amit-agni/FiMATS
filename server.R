@@ -52,7 +52,7 @@ server <- function(input,output,session){
                            ,all.x=T,by="symbol")[,.(symbol,category,Last,name,growth=(Last/close)-1)][,head(.SD,NO_OF_VALUE_BOXES)]
           setnames(temp_vb,"Last","value")
         }else{
-          #browser()
+          
           temp_vb <- DT_hist()[eval(parse(text=varEagle_parameters))
                                ,lapply(.SD[order(-date)],function(x) head(x,2)),symbol][
             ,.(date,name,close,prev_close=shift(close,n=1L,type="lead")
@@ -144,23 +144,6 @@ server <- function(input,output,session){
          })
        })
 
-       #Plots
-       
-       #Static height
-       # output$plotmyShares <- renderPlot({ 
-       #   if(input$radio_realTimeYN=="Yes"){
-       #     fn_plotRealTime(DT_realTime=DT_realTime()
-       #                     ,DT_stats=DT_stats()
-       #                     ,varSymbols=NULL
-       #                     ,DT_myShares=DT_myShares()) 
-       #     }else{
-       #       fn_plotYTD(DT_hist=DT_hist()
-       #                               ,dt_start=input$dt_start
-       #                               ,dt_end=input$dt_end
-       #                               ,varSymbols=NULL
-       #                               ,DT_myShares=DT_myShares()) 
-       #       }
-       # })
        
        
        #Dynamic height plot inside a box
