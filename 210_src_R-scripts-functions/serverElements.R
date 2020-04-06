@@ -4,68 +4,42 @@
 
 fnSrv_initialLoad <- function(input,output,session){
     
+    #browser()
+    #Steps
+    # 1. For the codes from the CSV file
+    # 2. Populate DT_stats and merge it with CSV file fields
+    # 3. If name is missing in the CSV file then use the DT_stats name
+    # 4. Load historical
+    # 5. Merge only the CSV file fields in historical
+
     fnHelper_shinyBusy(T,text = "Data Loading in Progress")
     
+    #Get symbols from the CSV file
     infile <- input$file_yahooCodes
     DT_yahooCodes <- fread(file=infile$datapath) 
     
-    if("Daily historical values" %in% input$chkb_loadWhat)
-    {
-        #Historical daily 
-        DT_hist <- tidyquant::tq_get(DT_yahooCodes$symbol,from = "2005-01-01", get = "stock.prices")
-        setDT(DT_hist)
-        
-        DT_hist <- merge(DT_hist,DT_yahooCodes,all.x =T,by = "symbol")
-        saveRDS(DT_hist,file=here::here("100_data_raw-input","DT_hist.Rds"))
-        output$txt_dataStatus <- renderText({ "Historical Data loaded"})
-        
-    }
+    #For those symbols, get the key stats. what_metrics is defined in global.R
+    DT_stats <- getQuote(DT_yahooCodes$symbol, what=what_metrics,row.names = F)
+    setDT(DT_stats,keep.rownames = "symbol")
+    setnames(DT_stats
+             ,names(DT_stats)
+             ,tolower(str_replace_all(str_replace_all(names(DT_stats),"[[:punct:]]","")," ","_")))
+    output$txt_dataStatus <- renderText({ "Financial Stats loaded"})
+    DT_stats <- merge(DT_stats,DT_yahooCodes,all.x =T,by = "symbol")
+    DT_stats[is.na(name),name:=namelong] #If name is not provided in the CSV file then use the yahoo name
+    DT_stats[,namelong:=NULL]
     
-    #quantmod::yahooQF()
     
-    if("Financial Stats" %in% input$chkb_loadWhat)
-    {
-        #Financial stats
-        what_metrics <- quantmod::yahooQF(c("Market Capitalization"
-                                  , "Price/Sales"
-                                  , "P/E Ratio"
-                                  , "PEG Ratio"
-                                  , "Price/EPS Estimate Next Year"
-                                  , "Price/Book"
-                                  , "Book Value"
-                                  , "Shares Outstanding"
-                                  , "Ex-Dividend Date"
-                                  , "Dividend/Share"
-                                  , "Dividend Yield"
-                                  , "Earnings/Share"
-                                  , "Price Hint"
-                                  , "52-week High"
-                                  , "Percent Change From 52-week High"
-                                  , "52-week Low"
-                                  , "Percent Change From 52-week Low"
-                                  , "50-day Moving Average"
-                                  , "Percent Change From 50-day Moving Average"
-                                  , "200-day Moving Average"
-                                  , "Percent Change From 200-day Moving Average"
-                                  , "Last Trade (Price Only)"                 
-                                  , "Last Trade Time"  
-                                  ))
-        
-        DT_stats <- getQuote(DT_yahooCodes$symbol, what=what_metrics,row.names = F)
-        setDT(DT_stats,keep.rownames = "symbol")
-        
-        DT_stats <- merge(DT_stats,DT_yahooCodes,all.x =T,by = "symbol")
-        
-        setnames(DT_stats
-                 ,names(DT_stats)
-                 ,tolower(str_replace_all(str_replace_all(names(DT_stats),"[[:punct:]]","")," ","_"))
-        )
-        
-        
-        saveRDS(DT_stats,file=here::here("100_data_raw-input","DT_stats.Rds"))
-        output$txt_dataStatus <- renderText({ "Financial Stats loaded"})
-    }
+    #Also, for those symbols get the Historical data
+    DT_hist <- tidyquant::tq_get(DT_yahooCodes$symbol,from = "2005-01-01", get = "stock.prices")
+    setDT(DT_hist)
+    DT_hist <- merge(DT_hist,DT_stats[,.(symbol,name,category,sector,country)]
+                     ,all.x =T,by = "symbol") #Merge only the CSV file fields in historical
+    output$txt_dataStatus <- renderText({ "Historical Data loaded"})
     
+    
+    saveRDS(DT_stats,file=here::here("100_data_raw-input","DT_stats.Rds"))
+    saveRDS(DT_hist,file=here::here("100_data_raw-input","DT_hist.Rds"))
     fnHelper_shinyBusy(F) # remove it when done
     
 }
@@ -93,8 +67,8 @@ fnSrv_dataCatchup <- function(input,output,session){
     DT_hist <- readRDS(file=here::here("100_data_raw-input","DT_hist.Rds"))
     DT_catchup <- tidyquant::tq_get(unique(DT_hist$symbol),from =min(DT_hist[,.(date=max(date)),symbol]$date), get = "stock.prices")
     setDT(DT_catchup)
-    DT_catchup[DT_hist[,.N,.(symbol,name,sector,country,type)]
-               ,`:=`(name=i.name,sector=i.sector,country=i.country,type=i.type)
+    DT_catchup[DT_hist[,.N,.(symbol,name,sector,country,category)]
+               ,`:=`(name=i.name,sector=i.sector,country=i.country,category=i.category)
                ,on = "symbol"]
     temp <- batchtools::ajoin(DT_catchup,DT_hist)
     DT_hist <- rbind(DT_hist,temp)
@@ -142,7 +116,8 @@ fnSrv_realTimeData <- function(DT_stats){
         print("error in real time loading")
     }else{
         setDT(temp)
-        setnames(temp,"Symbol","symbol")    
+        setnames(temp,"Symbol","symbol")
+        temp <- merge(temp,DT_stats,all=F,by="symbol")
     }
     print("completed realtime")
     temp
@@ -160,10 +135,10 @@ fn_srvDeepPopulateLOV <- function(input,output,session,DT_stats){
     
     output$lovDeep_all <- renderUI({
         selectInput("lovDeep_all",label = "What to analyse"
-                    ,choices = list("Stocks" = DT_stats[type == 'stock']$name
-                                    ,"Indices" = DT_stats[type == 'index']$name
-                                    ,"Currencies" = DT_stats[type == 'currency']$name
-                                    ,"Commodities" = DT_stats[type == 'commodity']$name)
+                    ,choices = list("Stocks" = DT_stats[category == 'stock']$name
+                                    ,"Indices" = DT_stats[category == 'index']$name
+                                    ,"Currencies" = DT_stats[category == 'currency']$name
+                                    ,"Commodities" = DT_stats[category == 'commodity']$name)
                     ,selected = DT_stats[,1]$name )
     })
     
@@ -172,3 +147,26 @@ fn_srvDeepPopulateLOV <- function(input,output,session,DT_stats){
 
 
 
+
+##################
+##  Overall View ##
+##################
+
+
+
+
+fn_srvEaglePopulateLOV <- function(input,output,session,DT_stats){
+    
+    output$boxEagle_additionalParameters <- renderUI({
+        box(collapsible = T,solidHeader = T,width = NULL,status = "info",title = "Additional Parameters"
+            ,radioButtons("radioEagle_selectCategory",label = "Category"
+                    ,choices = unique(DT_stats$category))
+            ,selectInput("lovEagle_selectCountry",label = "Country"
+                         ,choices = c('ALL',unique(DT_stats$country)))
+            ,selectInput("lovEagle_selectSector",label = "Sector"
+                         ,choices = c('ALL',unique(DT_stats[category=='stock']$sector)))
+            ,radioButtons("radioEagle_displayPerPage",label="Display per page",choices = c(5,10,20,"ALL"),inline = T,selected = "20"))
+    })
+    
+    
+}

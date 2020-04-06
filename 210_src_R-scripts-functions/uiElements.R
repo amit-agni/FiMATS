@@ -6,10 +6,10 @@ fnUI_dataRefresh <- function(){
             ,fileInput("file_yahooCodes", "CSV File with symbols as in Yahoo"
                                    ,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")
                                    ,width = '100%')
-                        ,checkboxGroupInput('chkb_loadWhat'
-                                            ,label = "For the symbols in the selected file, get"
-                                            ,choices = c("Daily historical values","Financial Stats")
-                                            ,inline = F)
+                        # ,checkboxGroupInput('chkb_loadWhat'
+                        #                     ,label = "For the symbols in the selected file, get"
+                        #                     ,choices = c("Daily historical values","Financial Stats")
+                        #                     ,inline = F)
                         ,actionButton("ab_initialLoad","Load"))
         ,box(collapsible = T,solidHeader = T,status = "primary",title ="Additional Data Processing"
              ,actionButton("ab_dataCatchup","Data catchup")
@@ -34,7 +34,8 @@ fnUI_eagleEye <- function(){
     fluidPage(
         fluidRow(column(width = 12,uiOutput("valueBoxes_eagle"))
              ,fluidRow(
-                    column(width = 12,uiOutput("box_plotEagleindex")
+                 column(width=2,uiOutput("boxEagle_additionalParameters"))
+                 ,column(width = 10,uiOutput("box_plotEagle")
                             ,fluidRow(
                                 column(width = 6,uiOutput("box_plotEaglecommodity"))
                                 ,column(width = 6,uiOutput("box_plotEaglecurrency"))

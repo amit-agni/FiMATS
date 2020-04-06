@@ -22,28 +22,46 @@ server <- function(input,output,session){
     
     
     #####################
-    #   Market View     #
+    #   Overall View     #
     #####################
+    
+    fn_srvEaglePopulateLOV(input,output,session,DT_stats())
     
     observe(
     {
+      
+      req(input$radioEagle_selectCategory)
+      varEagle_parameters <- case_when(input$lovEagle_selectCountry == 'ALL' & input$lovEagle_selectSector == 'ALL' ~ 
+                                         "category==input$radioEagle_selectCategory"
+                                       ,input$lovEagle_selectCountry == 'ALL' & input$lovEagle_selectSector != 'ALL' ~ 
+                                         "sector==input$lovEagle_selectSector & category==input$radioEagle_selectCategory"
+                                       ,input$lovEagle_selectCountry != 'ALL' & input$lovEagle_selectSector == 'ALL' ~ 
+                                         "country==input$lovEagle_selectCountry & category==input$radioEagle_selectCategory"
+                                       ,input$lovEagle_selectCountry != 'ALL' & input$lovEagle_selectSector != 'ALL' ~ 
+                                         "country==input$lovEagle_selectCountry & sector==input$lovEagle_selectSector & category==input$radioEagle_selectCategory")
+      
+      #!is.na(close) 
+      
       #Value boxes
       output$valueBoxes_eagle <- renderUI({
         
         if(input$radio_realTimeYN=="Yes"){
-          temp_vb <- merge(DT_realTime()[,.SD[which.max(`Trade Time`)],symbol]
-                           ,DT_hist()[,.SD[which.max(date)],symbol]
-                           ,all.x=T,by="symbol")[,.(symbol,type,Last,name,growth=(Last/close)-1)][
-                             type=='index']
+          
+          temp_vb <- merge(DT_realTime()[eval(parse(text=varEagle_parameters)),.SD[which.max(`Trade Time`)],.(symbol,category)]
+                           ,DT_hist()[,.SD[which.max(date)],symbol][,.(symbol,close)] #need for growth over previous day 
+                           ,all.x=T,by="symbol")[,.(symbol,category,Last,name,growth=(Last/close)-1)][,head(.SD,NO_OF_VALUE_BOXES)]
           setnames(temp_vb,"Last","value")
         }else{
-          temp_vb <- DT_hist()[type=="index" & !is.na(close),lapply(.SD[order(-date)],function(x) head(x,2)),symbol][
+          #browser()
+          temp_vb <- DT_hist()[eval(parse(text=varEagle_parameters))
+                               ,lapply(.SD[order(-date)],function(x) head(x,2)),symbol][
             ,.(date,name,close,prev_close=shift(close,n=1L,type="lead")
-               ,growth=(close/shift(close,n=1L,type="lead"))-1),symbol][!is.na(prev_close)]
+               ,growth=(close/shift(close,n=1L,type="lead"))-1),symbol][!is.na(prev_close)][,head(.SD,NO_OF_VALUE_BOXES)]
           setnames(temp_vb,"close","value")
           
+          temp_vb <- temp_vb[!is.na(value)]
+          
         }
-        
         
         lapply(1:nrow(temp_vb),function(i) {
           icon <- if(temp_vb[i]$growth < 0){ icon("thumbs-down") }else{ icon("thumbs-up") }
@@ -56,58 +74,33 @@ server <- function(input,output,session){
         })
       })
       
-     # #Static heights
-     #  lapply(c("index","commodity","currency"),function(i){
-     #    if(i %in% c("commodity","currency")){
-     #      PLOT_HEIGHT <- PLOT_HEIGHT * 0.8
-     #    }
-     #    output[[paste("plotEagle",i,sep="_")]] <- renderPlot({ 
-     #      if(input$radio_realTimeYN=="Yes"){
-     #        fn_plotRealTime(DT_realTime = DT_realTime()
-     #                        ,DT_stats = DT_stats()[type==i]
-     #                        ,varSymbols=NULL
-     #                        ,DT_myShares=NULL) 
-     #      }else{
-     #        fn_plotYTD(DT_hist=DT_hist()[type==i]
-     #                   ,dt_start=input$dt_start
-     #                   ,dt_end=input$dt_end
-     #                   ,varSymbols=NULL
-     #                   ,DT_myShares=NULL) 
-     #      }
-     #    })
-     #    
-     #    })
-      
-      
-      #Plots with dynamic heights within box
-      lapply(c("index","commodity","currency"),function(i){
-        
+
         var_plot <- reactive({ if(input$radio_realTimeYN=="Yes"){
-          fn_plotRealTime(DT_realTime = DT_realTime()
-                          ,DT_stats = DT_stats()[type==i]
+          fn_plotRealTime(DT_realTime = DT_realTime()[eval(parse(text=varEagle_parameters))]
                           ,varSymbols=NULL
-                          ,DT_myShares=NULL) 
+                          ,DT_myShares=NULL
+                          ,displayPerPage=input$radioEagle_displayPerPage)
           }else{
-            fn_plotYTD(DT_hist=DT_hist()[type==i]
+            fn_plotYTD(DT_hist=DT_hist()[eval(parse(text=varEagle_parameters))]
                        ,dt_start=input$dt_start
                        ,dt_end=input$dt_end
                        ,varSymbols=NULL
-                       ,DT_myShares=NULL) 
+                       ,DT_myShares=NULL
+                       ,displayPerPage=input$radioEagle_displayPerPage)
             }
           })
-        
-        
+
+
         var_dynamicHeight <- reactive(gg_facet_nrow(var_plot()))
-        
-        output[[paste("box_plotEagle",i,sep="")]] <- renderUI({
-          
-          box(collapsible = T,solidHeader = T,width = NULL,status = "info",title =i
+
+        output$box_plotEagle <- renderUI({
+
+          box(collapsible = T,solidHeader = T,width = NULL,status = "info",title = input$radioEagle_selectCategory
               ,renderPlot({ var_plot() },height = function(){var_dynamicHeight()*FACET_ROW_HEIGHT}))
           
         })
-        
-          
-        })
+
+      
 
     }) #end observe
     
@@ -120,18 +113,21 @@ server <- function(input,output,session){
     
     observeEvent(input$menuTabs,
      {
+      
+       input$radio_realTimeYN
        
        #Value boxes
        output$valueBoxes_myShares <- renderUI({
          if(input$radio_realTimeYN=="Yes"){
+           
            temp_vb_myShares <- merge(DT_realTime()[,.SD[which.max(`Trade Time`)],symbol]
-                            ,DT_hist()[,.SD[which.max(date)],symbol]
-                            ,all.x=T,by="symbol")[,.(symbol,type,Last,name,growth=(Last/close)-1)][
-                              type=='stock'][symbol %in% unique(DT_myShares()$symbol)]
+                            ,DT_hist()[,.SD[which.max(date)],symbol][,.(symbol,close)]
+                            ,all.x=T,by="symbol")[,.(symbol,category,Last,name,growth=(Last/close)-1)][
+                              category=='stock'][symbol %in% unique(DT_myShares()$symbol)]
            
            setnames(temp_vb_myShares,"Last","value")
          }else{
-           temp_vb_myShares <- DT_hist()[type=="stock" & !is.na(close),lapply(.SD[order(-date)],function(x) head(x,2)),symbol][
+           temp_vb_myShares <- DT_hist()[category=="stock" & !is.na(close),lapply(.SD[order(-date)],function(x) head(x,2)),symbol][
              ,.(date,name,close,prev_close=shift(close,n=1L,type="lead")
                 ,growth=(close/shift(close,n=1L,type="lead"))-1),symbol][!is.na(prev_close)][symbol %in% unique(DT_myShares()$symbol)]
            setnames(temp_vb_myShares,"close","value")
@@ -171,7 +167,7 @@ server <- function(input,output,session){
        var_plot <- reactive({
          if(input$radio_realTimeYN=="Yes"){
            fn_plotRealTime(DT_realTime=DT_realTime()
-                                       ,DT_stats=DT_stats()
+                                       #,DT_stats=DT_stats()
                                        ,varSymbols=NULL
                                        ,DT_myShares=DT_myShares()) 
          }else{
@@ -217,7 +213,7 @@ server <- function(input,output,session){
 
       output$plotDeep_realTime <- renderPlot({ if(input$radio_realTimeYN=="Yes"){
         fn_plotRealTime(DT_realTime=DT_realTime()
-                        ,DT_stats=DT_stats()
+                        #,DT_stats=DT_stats()
                         ,varSymbols=input$lovDeep_all
                         ,DT_myShares=NULL) 
         }

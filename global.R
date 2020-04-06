@@ -26,7 +26,36 @@ DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShare
 
 
 PLOT_HEIGHT <- 500
-FACET_ROW_HEIGHT <- 200
+FACET_ROW_HEIGHT <- 250
+NO_OF_VALUE_BOXES <- 12
+
+
+what_metrics <- quantmod::yahooQF(c("Name (Long)"
+                                    ,"Market Capitalization"
+                                    , "Price/Sales"
+                                    , "P/E Ratio"
+                                    , "PEG Ratio"
+                                    , "Price/EPS Estimate Next Year"
+                                    , "Price/Book"
+                                    , "Book Value"
+                                    , "Shares Outstanding"
+                                    , "Ex-Dividend Date"
+                                    , "Dividend/Share"
+                                    , "Dividend Yield"
+                                    , "Earnings/Share"
+                                    , "Price Hint"
+                                    , "52-week High"
+                                    , "Percent Change From 52-week High"
+                                    , "52-week Low"
+                                    , "Percent Change From 52-week Low"
+                                    , "50-day Moving Average"
+                                    , "Percent Change From 50-day Moving Average"
+                                    , "200-day Moving Average"
+                                    , "Percent Change From 200-day Moving Average"
+                                    , "Last Trade (Price Only)"                 
+                                    , "Last Trade Time"  
+))
+
 
 
 
@@ -54,12 +83,15 @@ fn_tblKPI <- function(DT_hist,DT_stats,varSymbols){
 
 
 
-fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares){
+fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPerPage=NULL){
+    
+    #browser()
+    
     if(is.null(varSymbols)){ #Eagle Eye
         if(!is.null(DT_myShares)){
             temp <- DT_hist[symbol %in% unique(DT_myShares$symbol) & date >= dt_start & date <= dt_end]
         }else{
-            temp <- DT_hist[type %in% c('index','currency','commodity') & date >= dt_start & date <= dt_end]
+            temp <- DT_hist[date >= dt_start & date <= dt_end]
         }
 
     }else{ #Deep Analysis
@@ -69,10 +101,17 @@ fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares){
     #Used for adjusting the date axis scale, scale_x_date
     var_countDates <- as.numeric(difftime(dt_end,dt_start,units ="days"))
     
+   
+    if(!is.null(displayPerPage)){
+        if(displayPerPage != 'ALL'){
+            temp <- temp[name %in% unique(temp$name)[1:displayPerPage]]    
+        }
+    }
+    
     var_plot <- temp %>%
         ggplot(aes(x=date,y=close)) +
         geom_line() +
-        facet_wrap(~name,scales = "free_y",ncol=3) +
+        facet_wrap(~name,scales = "free_y",ncol=4) +
         scale_x_date(date_breaks = fnHelper_dateBreaks(var_countDates)
                      ,date_labels = fnHelper_dateLabels(var_countDates)
         ) +
@@ -103,23 +142,31 @@ fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares){
 
 
 
-fn_plotRealTime <- function(DT_realTime,DT_stats,varSymbols,DT_myShares){
+fn_plotRealTime <- function(DT_realTime,varSymbols,DT_myShares,displayPerPage=NULL){
     
-    DT_realTime <- merge(DT_realTime,DT_stats,all.x=T,by="symbol")
+    
+    #DT_realTime <- merge(DT_realTime,DT_stats,all=F,by="symbol")
     if(is.null(varSymbols)){ #
         if(!is.null(DT_myShares)){
             temp <- DT_realTime[symbol %in% unique(DT_myShares$symbol)]
         }else{
-            temp <- DT_realTime[type %in% c('index','currency','commodity') ]
+            temp <- DT_realTime
         }
     }else{
         temp <- DT_realTime[name %in% varSymbols ]
     }
+    
+    if(!is.null(displayPerPage)){
+        if(displayPerPage != 'ALL'){
+            temp <- temp[name %in% unique(temp$name)[1:displayPerPage]]    
+        }
+    }
+    
 
     temp %>%  
         ggplot(aes(x=`Trade Time`,y=Last)) +
         geom_line() +
-        facet_wrap(~name,scales = "free",ncol=3) +
+        facet_wrap(~name,scales = "free",ncol=4) +
         cutlery::theme_darklightmix(color_theme = "va_light") +
         theme(strip.text.x = element_text(size = 14, colour = "black")
               ,plot.background = element_rect(fill = 'white'))
