@@ -1,10 +1,12 @@
 if(!require(pacman)) { install.packages("pacman"); library(pacman)}
-p_load(here,data.table,tidyverse,tictoc,shiny,shinydashboard,shinybusy,kableExtra,quantmod,gridExtra,
-       shinyBS
-       ,shinyWidgets #switchinput
-       ,shinyjs #hide show
-       ,tableHTML #make_css
+p_load(here,data.table,tidyverse,tictoc,shiny,shinydashboard
+       ,shinybusy
        ,shinycssloaders #spinner busy
+       ,kableExtra,quantmod,gridExtra
+       #.shinyBS
+       ,shinyWidgets #sweetalert #switchinput
+       #,shinyjs #hide show
+       ,tableHTML #make_css
        ,ggrepel
        ,tidyquant
        ,quantmod
@@ -15,14 +17,10 @@ rm(list = ls())
 if(!require(cutlery)) { devtools::install_github("amit-agni/cutlery"); library(cutlery)}
 
 source(here::here("210_src_R-scripts-functions","uiElements.R"))
-source(here::here("210_src_R-scripts-functions","serverElements.R"))
 
-
-DT_stats <- reactive(readRDS(file=here::here("100_data_raw-input","DT_stats.Rds")))
-DT_hist <- reactive(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds")))
-DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
-#DT_realTime <- reactive(readRDS(file=here::here("100_data_raw-input","DT_realTime.Rds")))
-
+#DT_stats <- reactive(readRDS(file=here::here("100_data_raw-input","DT_stats.Rds")))
+#DT_hist <- reactive(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds")))
+#DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
 
 
 PLOT_HEIGHT <- 500
@@ -144,7 +142,6 @@ fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPer
 
 fn_plotRealTime <- function(DT_realTime,varSymbols,DT_myShares,displayPerPage=NULL){
     
-    
     #DT_realTime <- merge(DT_realTime,DT_stats,all=F,by="symbol")
     if(is.null(varSymbols)){ #
         if(!is.null(DT_myShares)){
@@ -173,15 +170,103 @@ fn_plotRealTime <- function(DT_realTime,varSymbols,DT_myShares,displayPerPage=NU
 }
 
 
-fnHelper_shinyBusy <- function(value,text="in progress"){
+fn_getData_DTStats <- function(DT_yahooCodes){
+    #For those symbols, get the key stats. what_metrics is defined in global.R
+    DT_stats_temp <- getQuote(DT_yahooCodes$symbol, what=what_metrics,row.names = F)
+    setDT(DT_stats_temp,keep.rownames = "symbol")
+    setnames(DT_stats_temp
+             ,names(DT_stats_temp)
+             ,tolower(str_replace_all(str_replace_all(names(DT_stats_temp),"[[:punct:]]","")," ","_")))
+    
+    #output$txt_dataStatus <- renderText({ "Financial Stats loaded"})
+    
+    DT_stats_temp <- merge(DT_stats_temp,DT_yahooCodes,all.x =T,by = "symbol")
+    DT_stats_temp[is.na(name),name:=namelong] #If name is not provided in the CSV file then use the yahoo name
+    DT_stats_temp[,namelong:=NULL]
+    
+    DT_stats_temp
+    
+}
+
+
+fn_getData_DThist <- function(DT_yahooCodes,DT_stats,input){
+    DT_hist_temp <- tidyquant::tq_get(DT_yahooCodes$symbol,from = input$date_dataStartDate, get = "stock.prices")
+    setDT(DT_hist_temp)
+    DT_hist_temp <- merge(DT_hist_temp,DT_stats[,.(symbol,name,category,sector,country)]
+                          ,all.x =T,by = "symbol") #Merge only the CSV file fields in historical
+    
+    DT_hist_temp
+}
+
+
+fn_getData_DTrealTime <- function(DT_stats){
+    what_metrics <- yahooQF(c("Symbol"
+                              ,"Last Trade (Price Only)"
+                              ,"Open"
+                              # ,"Days High"
+                              # ,"Days Low"
+                              # ,"Volume" 
+    ))
+    
+    temp <- try(getQuote(unique(DT_stats$symbol), what=what_metrics,row.names = F))
+    
+    if(class(temp) != "data.frame"){
+        temp <- data.frame()
+        print(temp)
+        print("error in real time loading")
+    }else{
+        setDT(temp)
+        setnames(temp,"Symbol","symbol")
+        temp <- merge(temp,DT_stats,all=F,by="symbol")
+    }
+    print("completed realtime")
+    temp
+    
+}
+
+
+
+
+
+fnHelper_shinyBusy <- function(value,text="in progress",session=NULL){
     if(value==T){
         shinybusy::show_modal_spinner(text = text, spin = "atom", color ="tomato") # show the modal window
     }else{
         remove_modal_spinner() # remove it when done
+        #show sucess message
+        sendSweetAlert(
+            session,
+            title = "Success",
+            #text = "done",
+            type = "success",
+            btn_labels = "Ok",
+            btn_colors = "#3085d6",
+            html = FALSE,
+            closeOnClickOutside = TRUE,
+            showCloseButton = FALSE,
+            width = NULL
+        )
+        
     }
     
 }
 
+
+fnHelper_success <- function(session){
+    sendSweetAlert(
+        session,
+        title = "Success",
+        #text = "done",
+        type = "success",
+        btn_labels = "Ok",
+        btn_colors = "#3085d6",
+        html = FALSE,
+        closeOnClickOutside = TRUE,
+        showCloseButton = FALSE,
+        width = NULL
+    )
+    
+}
 
 fnHelper_kable <- function(DT){
     DT %>%
