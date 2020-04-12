@@ -1,26 +1,34 @@
-if(!require(pacman)) { install.packages("pacman"); library(pacman)}
-p_load(here,data.table,tidyverse,tictoc,shiny,shinydashboard
-       ,shinybusy
-       ,shinycssloaders #spinner busy
-       ,kableExtra,quantmod,gridExtra
-       #.shinyBS
-       ,shinyWidgets #sweetalert #switchinput
-       #,shinyjs #hide show
-       ,tableHTML #make_css
-       ,ggrepel
-       ,tidyquant
-       ,quantmod
-       ,batchtools
-       ,assertive.types #needed for gg_facet_nrow()
-       )
+#if(!require(pacman)) { install.packages("pacman"); library(pacman)}
+
+library(here)
+library(data.table)
+library(tidyverse)
+
+library(shiny)
+library(shinydashboard)
+library(shinybusy)
+library(shinycssloaders) #spinner busy
+library(shinyWidgets) #sweetalert #switchinput
+
+library(quantmod)
+library(tidyquant)
+
+library(kableExtra)
+library(gridExtra)
+library(tableHTML) #make_css
+library(ggrepel)
+library(batchtools)
+library(assertive.types) #needed for gg_facet_nrow()
+       
+
 rm(list = ls())
-if(!require(cutlery)) { devtools::install_github("amit-agni/cutlery"); library(cutlery)}
+
 
 source(here::here("210_src_R-scripts-functions","uiElements.R"))
 
-#DT_stats <- reactive(readRDS(file=here::here("100_data_raw-input","DT_stats.Rds")))
-#DT_hist <- reactive(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds")))
-#DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
+# DT_stats <- reactive(readRDS(file=here::here("100_data_raw-input","DT_stats.Rds")))
+# DT_hist <- reactive(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds")))
+# DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
 
 
 PLOT_HEIGHT <- 500

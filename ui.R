@@ -33,10 +33,10 @@ shinydashboard::dashboardPage(
                                              ,br()
                                              ,fluidPage(tags$i("Financial Markets Analysis and Tracking System"))
                                              ,br()
-                                             ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
                                              ,menuItem("World Markets",tabName = 'menu_eagleEye',icon = icon("globe-americas"),startExpanded = F)
                                              ,menuItem("My Investments",tabName = 'menu_myShares',icon = icon("sticky-note"),startExpanded = F)
                                              ,menuItem("Deep Dive",tabName = "menu_deepDive",icon = icon("swimmer"),startExpanded = F)
+                                             ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
                                              ,menuItem("Common Parameters",icon=icon("sliders-h"),startExpanded = T
                                              # ,column(width = 12,strong("Enable Realtime")
                                              # ,shinyWidgets::switchInput('radio_realTimeYN'
@@ -64,10 +64,10 @@ shinydashboard::dashboardPage(
     ,body = dashboardBody(
       
       tabItems(
-        tabItem(tabName = "menu_dataRefresh",fnUI_dataRefresh())
-        ,tabItem(tabName = "menu_eagleEye",fnUI_eagleEye())
+        tabItem(tabName = "menu_eagleEye",fnUI_eagleEye())
         ,tabItem(tabName = "menu_myShares",fnUI_myShares())
         ,tabItem(tabName = "menu_deepDive",fnUI_deepAnalyse())
+        ,tabItem(tabName = "menu_dataRefresh",fnUI_dataRefresh())
         
 
       )

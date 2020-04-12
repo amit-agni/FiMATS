@@ -4,9 +4,14 @@ server <- function(input,output,session){
   #   Data Refresh   #
   #####################
   
-  DT_stats <- reactiveVal(data.frame())
-  DT_hist <- reactiveVal(data.frame())
-  DT_myShares <- reactiveVal(data.frame())
+  # DT_stats <- reactiveVal(data.frame())
+  # DT_hist <- reactiveVal(data.frame())
+  # DT_myShares <- reactiveVal(data.frame())
+  
+  DT_stats <- reactiveVal(readRDS(file=here::here("100_data_raw-input","DT_stats.Rds")))
+  DT_hist <- reactiveVal(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds")))
+  DT_myShares <- reactiveVal(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
+
   DT_realTime <- reactiveVal(data.frame())
   
   #Load DT_hist and DT_stats based on the symbols from CSV file
