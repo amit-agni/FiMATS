@@ -112,16 +112,15 @@ fnUI_deepAnalyse <- function(){
                              ,tableOutput("tblDeep_KPI"))))
         ,fluidRow(column(width = 2
                          ,box(collapsible = T,solidHeader = T,width = NULL,status = "success",title ="Additional Parameters"
-                               ,uiOutput("lovDeep_all")))
-                  ,column(width = 7
-                         ,box(collapsible = T,solidHeader = T,width = NULL,status = "success",title ="Year to date trends"
-                              ,plotOutput("plotDeep_YTDFcst",height = PLOT_HEIGHT)))
+                              ,uiOutput("lovDeep_all")
+                              ,radioButtons('radioDeep_PlotYTDType',label = 'Plot Type',choices = c("Standard","CandleStick","OHLC","Waterfall","Funnel","FunnelArea","Indicator"))))
+                  ,column(width = 7,uiOutput("boxDeep_PlotYTD"))
                   ,column(width = 3
                           ,box(collapsible = T,solidHeader = T,width = NULL,status = "success",title ="Real Time"
                                ,plotOutput("plotDeep_realTime",height = PLOT_HEIGHT)))
         )
-        # #Disable flickering during Refresh
-         ,tags$style(type="text/css", "#plotDeep_YTDFcst.recalculating { opacity: 1.0; }")
+         #Disable flickering during Refresh
+         ,tags$style(type="text/css", "#boxDeep_PlotYTD.recalculating { opacity: 1.0; }")
          ,tags$style(type="text/css", "#plotDeep_realTime.recalculating { opacity: 1.0; }")
          
 

@@ -20,6 +20,7 @@ library(ggrepel)
 library(batchtools)
 library(assertive.types) #needed for gg_facet_nrow()
        
+library(plotly)
 
 rm(list = ls())
 
@@ -121,7 +122,7 @@ fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPer
         scale_x_date(date_breaks = fnHelper_dateBreaks(var_countDates)
                      ,date_labels = fnHelper_dateLabels(var_countDates)
         ) +
-        cutlery::theme_darklightmix(color_theme = "lightcyan",legend_position = "bottom") +
+        cutlery::theme_darklightmix(color_theme = "lightcyan",legend_position = "right") +
         theme(strip.text.x = element_text(size = 14, colour = "black")
               ,plot.background = element_rect(fill = 'white'))
 
@@ -146,6 +147,16 @@ fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPer
 }
 
 
+
+fn_plotFinance <- function(DT_hist,dt_start,dt_end,varSymbols,plotType){
+    DT_hist[name==varSymbols & date >= dt_start & date <= dt_end] %>% 
+        plot_ly(x = ~date, type=tolower(plotType)
+                ,open =~open, close = ~close ,high = ~high, low = ~low) %>%
+        layout(title = paste(plotType,"Chart")
+               ,xaxis = list(rangeslider = list(visible = T))
+               ,yaxis = list(autorange = TRUE))    
+    
+}
 
 
 fn_plotRealTime <- function(DT_realTime,varSymbols,DT_myShares,displayPerPage=NULL){
