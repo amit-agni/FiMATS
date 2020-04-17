@@ -209,8 +209,21 @@ fn_getData_DTStats <- function(DT_yahooCodes){
 
 
 fn_getData_DThist <- function(DT_yahooCodes,DT_stats,input){
-    DT_hist_temp <- tidyquant::tq_get(DT_yahooCodes$symbol,from = input$date_dataStartDate, get = "stock.prices")
+    DT_hist_temp <- tidyquant::tq_get(DT_yahooCodes$symbol
+                                      ,from = input$date_dataStartDate
+                                      #,to = Sys.Date()
+                                      , get = "stock.prices")
     setDT(DT_hist_temp)
+    
+    #This is needed as the realtime comparison happens on prior date
+    DT_hist_temp <- DT_hist_temp[date < Sys.Date()] 
+    
+    min <- min(DT_hist_temp$date)
+    max <- max(DT_hist_temp$date)
+    date_index <- DT_hist_temp[,.(date = seq(min,max,by="day")),by=symbol]
+    
+    DT_hist_temp <- merge(date_index,DT_hist_temp,by=c("symbol","date"),all.x = T)
+    
     DT_hist_temp <- merge(DT_hist_temp,DT_stats[,.(symbol,name,category,sector,country)]
                           ,all.x =T,by = "symbol") #Merge only the CSV file fields in historical
     

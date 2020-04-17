@@ -29,8 +29,7 @@ server <- function(input, output, session) {
     DT_stats_temp <- fn_getData_DTStats(DT_yahooCodes)
     DT_stats(DT_stats_temp) #assign value to the reactiveVal
     
-    DT_hist_temp <-
-      fn_getData_DThist(DT_yahooCodes, DT_stats(), input)
+    DT_hist_temp <- fn_getData_DThist(DT_yahooCodes, DT_stats(), input)
     DT_hist(DT_hist_temp)   #assign value to the reactiveVal
     
     if (input$radio_saveDataYN == "Yes") {
@@ -93,37 +92,34 @@ server <- function(input, output, session) {
     if (isTRUE(input$alert_timeStamp)) {
       fnHelper_shinyBusy(T, text = "Data Loading in Progress")
       
-      DT_catchup <-
-        tidyquant::tq_get(unique(DT_hist()$symbol),
-                          from = min(DT_hist()[, .(date = max(date)), symbol]$date - 2),
+      DT_catchup <- tidyquant::tq_get(unique(DT_hist()$symbol),
+                          from = min(DT_hist()[, .(date = max(date)), symbol]$date - 3),
+                          to = Sys.Date(),
                           get = "stock.prices")
+      
       setDT(DT_catchup)
+      #This is needed as the realtime comparison happens on prior date
+      DT_catchup <- DT_catchup[date < Sys.Date()] 
+      
+      
+      
       DT_catchup[DT_hist()[, .N, .(symbol, name, sector, country, category)]
-                 , `:=`(
-                   name = i.name,
-                   sector = i.sector,
-                   country = i.country,
-                   category = i.category
-                 )
+                 , `:=`(name = i.name,sector = i.sector,country = i.country,category = i.category)
                  , on = "symbol"]
       
       DT_hist()[, timestamp := NULL]
       
-      temp <- batchtools::ajoin(DT_catchup, DT_hist())
+      temp <- batchtools::ajoin(DT_catchup
+                                ,DT_hist()[!is.na(close)][, .N, .(symbol, name, sector, country, category,date)][,-"N"])
       
-      DT_hist_temp <-
-        cbind(rbind(DT_hist(), temp), data.frame(timestamp = Sys.time()))
-      saveRDS(DT_hist_temp,
-              file = here::here("100_data_raw-input", "DT_hist.Rds"))
+      DT_hist_temp <- cbind(rbind(DT_hist(), temp), data.frame(timestamp = Sys.time()))
+      
+      saveRDS(DT_hist_temp,file = here::here("100_data_raw-input", "DT_hist.Rds"))
       
       DT_hist(DT_hist_temp)
       
-      output$txt_histDataStatus <-
-        renderText(paste0(
-          "Data has been updated, latest timestamp is now :"
-          ,
-          strftime(max(DT_hist_temp$timestamp), format = "%d%b%y %H:%M")
-        ))
+      output$txt_histDataStatus <- renderText(paste0("Data has been updated, latest timestamp is now :"
+                                                     ,strftime(max(DT_hist_temp$timestamp), format = "%d%b%y %H:%M")))
       
       fnHelper_shinyBusy(F, session = session)
     }
@@ -192,38 +188,11 @@ server <- function(input, output, session) {
         )
       )
       
-      box(
-        collapsible = T,
-        solidHeader = T,
-        width = NULL,
-        status = "info",
-        title = "Additional Parameters"
-        ,
-        radioButtons(
-          "radioEagle_selectCategory",
-          label = "Category",
-          choices = unique(DT_stats()$category)
-        )
-        ,
-        selectInput(
-          "lovEagle_selectCountry",
-          label = "Country",
-          choices = c('ALL', unique(DT_stats()$country))
-        )
-        ,
-        selectInput(
-          "lovEagle_selectSector",
-          label = "Sector",
-          choices = c('ALL', unique(DT_stats()$sector))
-        )
-        ,
-        radioButtons(
-          "radioEagle_displayPerPage",
-          label = "Display per page",
-          choices = c(5, 10, 20, "ALL"),
-          inline = T,
-          selected = "10"
-        )
+      box(collapsible = T,solidHeader = T,width = NULL,status = "info",title = "Additional Parameters"
+        ,radioButtons("radioEagle_selectCategory",label = "Category",choices = unique(DT_stats()$category))
+        ,selectInput("lovEagle_selectCountry",label = "Country",choices = c('ALL', unique(DT_stats()$country)))
+        ,selectInput("lovEagle_selectSector",label = "Sector",choices = c('ALL', unique(DT_stats()$sector)))
+        ,radioButtons("radioEagle_displayPerPage",label = "Display per page",choices = c(5, 10, 20, "ALL"),inline = T,selected = "10")
       )
     })
     
@@ -234,15 +203,9 @@ server <- function(input, output, session) {
     req(DT_stats())
     req(input$radioEagle_selectCategory)
     
-    updateSelectInput(session
-                      ,
-                      inputId = "lovEagle_selectCountry"
-                      ,
+    updateSelectInput(session,inputId = "lovEagle_selectCountry",
                       choices = c('ALL', unique(DT_stats()[category == input$radioEagle_selectCategory]$country)))
-    updateSelectInput(session
-                      ,
-                      inputId = "lovEagle_selectSector"
-                      ,
+    updateSelectInput(session,inputId = "lovEagle_selectSector",
                       choices = c('ALL', unique(DT_stats()[category == input$radioEagle_selectCategory]$sector)))
   })
   
