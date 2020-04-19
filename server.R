@@ -98,9 +98,9 @@ server <- function(input, output, session) {
                           get = "stock.prices")
       
       setDT(DT_catchup)
+      
       #This is needed as the realtime comparison happens on prior date
       DT_catchup <- DT_catchup[date < Sys.Date()] 
-      
       
       
       DT_catchup[DT_hist()[, .N, .(symbol, name, sector, country, category)]
