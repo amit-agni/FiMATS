@@ -192,7 +192,7 @@ server <- function(input, output, session) {
         ,radioButtons("radioEagle_selectCategory",label = "Category",choices = unique(DT_stats()$category))
         ,selectInput("lovEagle_selectCountry",label = "Country",choices = c('ALL', unique(DT_stats()$country)))
         ,selectInput("lovEagle_selectSector",label = "Sector",choices = c('ALL', unique(DT_stats()$sector)))
-        ,radioButtons("radioEagle_displayPerPage",label = "Display per page",choices = c(5, 10, 20, "ALL"),inline = T,selected = "10")
+        ,radioButtons("radioEagle_displayPerPage",label = "Display per page",choices = c(8,12,24, "ALL"),inline = T,selected = "12")
       )
     })
     

@@ -203,6 +203,9 @@ fn_getData_DTStats <- function(DT_yahooCodes){
     DT_stats_temp[is.na(name),name:=namelong] #If name is not provided in the CSV file then use the yahoo name
     DT_stats_temp[,namelong:=NULL]
     
+    var_lvls <- DT_stats_temp[,sum(market_capitalization,na.rm = T),name][order(-V1)]$name
+    DT_stats_temp[,name := factor(name,levels = var_lvls,ordered = T)]
+    
     DT_stats_temp
     
 }
@@ -215,6 +218,8 @@ fn_getData_DThist <- function(DT_yahooCodes,DT_stats,input){
                                       , get = "stock.prices")
     setDT(DT_hist_temp)
     
+    #browser()
+    
     #This is needed as the realtime comparison happens on prior date
     DT_hist_temp <- DT_hist_temp[date < Sys.Date()] 
     
@@ -223,6 +228,10 @@ fn_getData_DThist <- function(DT_yahooCodes,DT_stats,input){
     # max <- max(DT_hist_temp$date)
     # date_index <- DT_hist_temp[,.(date = seq(min,max,by="day")),by=symbol]
     # DT_hist_temp <- merge(date_index,DT_hist_temp,by=c("symbol","date"),all.x = T)
+    
+    
+    
+    #ggplot(DT_stats[sector=='Materials'],aes(x=pricebook,y=pe_ratio)) + geom_point() + facet_wrap(~name)
     
     DT_hist_temp <- merge(DT_hist_temp,DT_stats[,.(symbol,name,category,sector,country)]
                           ,all.x =T,by = "symbol") #Merge only the CSV file fields in historical
