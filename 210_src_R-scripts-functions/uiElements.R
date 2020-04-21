@@ -131,9 +131,35 @@ fnUI_deepAnalyse <- function(){
 
 
 
+fnUI_charts <- function(){
+    
+    fluidPage(fluidRow(box(width = 12,solidHeader = T,background = "navy"
+                           ,column(width = 4,h3("Technical Charts and Forecasts"))
+                           ,column(width = 2,uiOutput("lovCharts_all")))
+                       )
+              ,fluidRow(column(width=3
+                               ,style='padding:0px;'
+                               ,box(width = 12,solidHeader = T,background = "navy"
+                                    #,htmlOutput('txt_chartingNotes')
+                                    ,span(htmlOutput('txt_chartingNotes'), style="color:white;font-size:11px")
+                                    
+                                    ))
+                        
+                        
+                        
+                        ,column(width = 5
+                                ,style='padding:0px;margin:0px;'
+                                ,box(width = 12,solidHeader = T,background = "navy",height = 20+ PLOT_HEIGHT*1.5
+                                     ,plotOutput('plotCharts_technicalChart')))
+                        
+                        )
+              )
+    
+    
+}
 
-
-
+#ERROR: Invalid color: grey. Valid colors are: red, yellow, aqua, blue, light-blue, green, navy, teal
+#, olive, lime, orange, fuchsia, purple, maroon, black.
 
 
 

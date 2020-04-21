@@ -31,11 +31,15 @@ shinydashboard::dashboardPage(
     ,sidebar = dashboardSidebar(width = sideBarWidth
                                 ,sidebarMenu(id="menuTabs"
                                              ,br()
-                                             ,fluidPage(tags$i("Financial Markets Analysis and Tracking System"))
+                                             #,fluidPage(tags$i("Financial Markets Analysis and Tracking System"))
+                                             ,fluidPage(span("Financial Markets Analysis and Tracking System"
+                                                             , style="color:yellow;font-size:12px"))
+                                             
                                              ,br()
                                              ,menuItem("World Markets",tabName = 'menu_eagleEye',icon = icon("globe-americas"),startExpanded = F)
                                              ,menuItem("My Investments",tabName = 'menu_myShares',icon = icon("sticky-note"),startExpanded = F)
                                              ,menuItem("Deep Dive",tabName = "menu_deepDive",icon = icon("swimmer"),startExpanded = F)
+                                             ,menuItem("Technical Charts",tabName = "menu_charts",icon = icon("chart-line"),startExpanded = F)
                                              ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
                                              ,menuItem("Common Parameters",icon=icon("sliders-h"),startExpanded = T
                                              # ,column(width = 12,strong("Enable Realtime")
@@ -49,7 +53,7 @@ shinydashboard::dashboardPage(
                                              #                               ,value = F
                                              #                               ,status = "primary"
                                              #                               ,inline = F)
-                                             ,dateInput("dt_start",label = "Start Date",value = "2019-01-01",format = "dd-M-yy")
+                                             ,dateInput("dt_start",label = "Start Date",value = Sys.Date()-90,format = "dd-M-yy")
                                              ,dateInput("dt_end",label = "End Date",format = "dd-M-yy")
                                              ,radioButtons('radio_realTimeYN',label="Show Realtime"
                                                            ,choices = c("Yes","No"),selected = "No",inline = T)
@@ -67,6 +71,7 @@ shinydashboard::dashboardPage(
         tabItem(tabName = "menu_eagleEye",fnUI_eagleEye())
         ,tabItem(tabName = "menu_myShares",fnUI_myShares())
         ,tabItem(tabName = "menu_deepDive",fnUI_deepAnalyse())
+        ,tabItem(tabName = "menu_charts",fnUI_charts())
         ,tabItem(tabName = "menu_dataRefresh",fnUI_dataRefresh())
         
 
