@@ -36,8 +36,8 @@ shinydashboard::dashboardPage(
                                                              , style="color:yellow;font-size:12px"))
                                              
                                              ,br()
-                                             ,menuItem("World Markets",tabName = 'menu_eagleEye',icon = icon("globe-americas"),startExpanded = F)
-                                             ,menuItem("My Investments",tabName = 'menu_myShares',icon = icon("sticky-note"),startExpanded = F)
+                                             ,menuItem("Markets Overview",tabName = 'menu_eagleEye',icon = icon("globe-americas"),startExpanded = F)
+                                             ,menuItem("My Investments",tabName = 'menu_myShares',icon = icon("list-alt"),startExpanded = F)
                                              ,menuItem("Deep Dive",tabName = "menu_deepDive",icon = icon("swimmer"),startExpanded = F)
                                              ,menuItem("Technical Charts",tabName = "menu_charts",icon = icon("chart-line"),startExpanded = F)
                                              ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
