@@ -21,6 +21,8 @@ library(batchtools)
 library(assertive.types) #needed for gg_facet_nrow()
        
 library(plotly)
+library(DT)
+
 
 rm(list = ls())
 
@@ -71,21 +73,41 @@ what_metrics <- quantmod::yahooQF(c("Name (Long)"
 ###############################
 
 fn_tblKPI <- function(DT_hist,DT_stats,varSymbols){
-    temp1 <- DT_stats[name %in% varSymbols][
-        ,.(last = round(last,0)
-           ,`52high` = paste(round(`52week_high`,0)," (",round(`_change_from_52week_high`*100,2),"%)",sep="")
-           ,`52low` = paste(round(`52week_low`,0)," (",round(`_change_from_52week_low`*100,2),"%)",sep="")
-           ,`50day` = paste(round(`50day_ma`,0)," (",round(`_change_from_50day_ma`*100,2),"%)",sep="")
-           ,`200day` = paste(round(`200day_ma`,0)," (",round(`_change_from_200day_ma`*100,2),"%)",sep=""))
-        ]
+    
+    # temp1 <- DT_stats[name %in% varSymbols][
+    #     ,.(trade_time
+    #        ,last = round(last,0)
+    #        ,`52high` = paste(round(`52week_high`,0)," (",round(`_change_from_52week_high`*100,2),"%)",sep="")
+    #        ,`52low` = paste(round(`52week_low`,0)," (",round(`_change_from_52week_low`*100,2),"%)",sep="")
+    #        ,`50day` = paste(round(`50day_ma`,0)," (",round(`_change_from_50day_ma`*100,2),"%)",sep="")
+    #        ,`200day` = paste(round(`200day_ma`,0)," (",round(`_change_from_200day_ma`*100,2),"%)",sep="")
+    #        )
+    #     ]
+    # 
+    latest <- DT_hist[name %in% varSymbols][order(-date)][1]$close
+    
+    temp1 <- DT_stats[name %in% varSymbols
+                      ,.(`52high` = paste(round(`52week_high`,0)," (",round((`52week_high`/latest - 1 )*100,2),"%)",sep="")
+                         ,`52low` = paste(round(`52week_low`,0)," (",round((`52week_low`/latest - 1 )*100,2),"%)",sep="")
+                         ,`50day MA` = paste(round(`50day_ma`,0)," (",round((`50day_ma`/latest - 1 )* 100,2),"%)",sep="")
+                         ,`200day MA` = paste(round(`200day_ma`,0)," (",round((`200day_ma`/latest - 1 ) * 100,2),"%)",sep="")
+                      )
+                      # ,.(`52high` = round(`52week_high`,0)
+                      #    ,`52low` = round(`52week_low`,0)
+                      #    ,`50day` = round(`50day_ma`,0)
+                      #    ,`200day` = round(`200day_ma`,0))
+                      ]
+    
+    
     temp2 <- DT_hist[name %in% varSymbols][order(-date)][
         ,.(date,close,varPct = round(100 * (close/shift(close,n=1L,type="lead")-1),2))][1:6][
             ,.(day=strftime(date,format = "%d %b-%a")
-               ,close = paste(close," (",varPct,"%)",sep=""))] %>%
+               ,close = paste(round(close,0)," (",varPct,"%)",sep=""))] %>%
         melt(id.vars="day") %>%
         dcast(variable ~ factor(day, levels=day)) %>%
         .[,2:7] 
-    cbind(temp1,temp2)
+    cbind(temp2,temp1)
+    
 } 
 
 
@@ -346,4 +368,60 @@ gg_facet_nrow <- function(p){
         unique() %>%
         length()
 }
+
+
+
+#### Opportunities
+
+fn_corTopBottom <- function(correl){
+    correl[upper.tri(correl,diag = TRUE)] <- NA
+    correl <- setDT(as.data.frame(correl),keep.rownames = TRUE)
+    out <- melt(correl,id.vars = "rn",variable.factor = F)[order(-value)] %>% setnames(.,c("rn","variable"),c("var1","var2"))
+    out
+}
+
+
+fn_opp_SectorCorrelations <- function(DT_hist){
+    
+    temp <- DT_hist[,.(close=mean(close)),.(date,sector)]
+    
+    #Difference of log of lag differences
+    n <- 1L
+    temp[,`:=`(close_log = log(close)
+               ,close_shift = shift(close,n=n,type = "lag")
+               ,close_shiftlog = shift(log(close),n=n,type = "lag")
+               ,close_DiffLagLog = log(close)-shift(log(close),n=n,type = "lag"))]
+    
+    correl <- temp %>%
+        dcast(date~sector,value.var ="close_DiffLagLog") %>%
+        .[,-"date"] %>%
+        cor(.,use = "complete.obs")
+    
+    correl
+}
+
+
+fn_opp_RiskReward <- function(DT_hist){
+    
+    temp <- DT_hist[,.(category,symbol,date,close,sector,country,name)]
+    n <- 1L
+    temp[,`:=`(close_log = log(close)
+               ,close_shift = shift(close,n=n,type = "lag")
+               ,close_shiftlog = shift(log(close),n=n,type = "lag")
+               ,close_DiffLagLog = log(close)-shift(log(close),n=n,type = "lag"))
+         ,by = symbol]
+    
+    #mean and sd of the log return
+    temp <- temp[,.(reward = round(mean(close_DiffLagLog,na.rm = T),4)
+                    ,risk = round(sd(close_DiffLagLog,na.rm = T),4))
+                 ,.(symbol,name,sector)]
+    
+    temp
+        
+    
+    
+    
+    
+}
+
 

@@ -1,4 +1,7 @@
 server <- function(input, output, session) {
+  
+  
+    
   #####################
   #   Data Refresh   #
   #####################
@@ -17,6 +20,13 @@ server <- function(input, output, session) {
     )))
   
   DT_realTime <- reactiveVal(data.frame())
+  
+  observe({
+    req(DT_hist()$date)
+    output$text_LatestDate <- renderText(paste("Data updated until :",strftime(max(DT_hist()$date),format="%a %d-%b-%y")))
+    
+  })
+  
   
   #Load DT_hist and DT_stats based on the symbols from CSV file
   observeEvent(input$ab_loadFreshData, {
@@ -233,6 +243,12 @@ server <- function(input, output, session) {
     
     #Value boxes
     output$valueBoxes_eagle <- renderUI({
+      
+      if(input$radioEagle_selectCategory != 'Sector' & input$lovEagle_selectSector != 'ALL'){
+        NO_OF_VALUE_BOXES <- Inf
+      }
+      
+      
       if (input$radio_realTimeYN == "Yes") {
         req(DT_realTime())
         req(DT_hist())
@@ -254,7 +270,10 @@ server <- function(input, output, session) {
       }
       
       
+      
       temp_vb <- temp_vb[!is.na(value) & !is.na(growth)]
+      setorder(temp_vb,name)
+      
       
       lapply(1:nrow(temp_vb), function(i) {
         icon <-if (temp_vb[i]$growth < 0) {icon("thumbs-down")} else{icon("thumbs-up")}
@@ -478,7 +497,7 @@ server <- function(input, output, session) {
     req(DT_stats()$category)
     selectInput(
       "lovCharts_all",
-      label = "What to analyse"
+      label = ""
       #,choices = split(DT_stats()[,.N,.(category,name)][,-"N"],by="category",keep.by=F,flatten=F)
       ,choices = list(
         "Stocks" = DT_stats()[category == 'stock']$name
@@ -491,7 +510,48 @@ server <- function(input, output, session) {
   })
   
   
+  output$charts_tblKPI <- render_tableHTML({
+    
+    fn_tblKPI(DT_hist(), DT_stats(), input$lovCharts_all) %>% 
+      tableHTML(rownames = F
+                ,border=2
+                ,widths = rep(100,10)
+                ,spacing = "10px"
+                )
+    #%>% add_theme('rshiny-blue')
+    
+    })
+  
+  output$charts_tblOHLCdata <- renderDataTable({
+    req(input$lovCharts_all)
+    
+    datatable(DT_hist()[name == input$lovCharts_all & date >= input$dt_start & date <= input$dt_end][
+      order(-date)][,.(date,open,high,low,close,volume,adjusted)]) %>%
+      formatRound(.,c(2:8), 0) 
+      
+    #   formatStyle(columns = c(1:3), 'text-align' = 'center')
+    
+    
+  },options=list(pageLength = 5
+                 #,lengthMenu = c(2, 12, 18)
+                 ,searching= FALSE
+                 ,columnDefs = list(list(className = 'dt-center'))
+                 ,rowCallback = JS("function(r,d) {$(r).attr('height', '20px')}")
+                 #,class="compact"
+                 #,class = 'white-space: nowrap stripe hover'
+                 )
+  ) 
+  
+  
   output$txt_chartingNotes <- renderText({ read_file(here::here('100_data_raw-input','charting-notes.html')) })
+  
+  output$charts_Image <- renderImage({
+    return(list(src = here::here("100_data_raw-input","Candlestick-Cheat-Sheet_web-01.jpg")
+         ,contentType = "image/jpg"
+         ,height = "100%"
+         ,width = "100%"))
+    
+    },deleteFile = F)
   
   
   observeEvent(input$lovCharts_all,{
@@ -505,7 +565,10 @@ server <- function(input, output, session) {
       xts(temp[,.(open,high,low,close,volume)],order.by =temp$date)  %>%
         chartSeries(TA='addBBands();addRSI();addMACD();addVo()'
                     ,theme = "white"
-                    ,name = 'Technical Charts')
+                    ,multi.col = F
+                    ,up.col="white"
+                    ,dn.col ="darkslategray1")
+                    #name = 'Technical Charts')
       # myPars <-chart_pars() 
       # myPars$cex<-2
       # mychartTheme <- chart_theme()
@@ -524,9 +587,139 @@ server <- function(input, output, session) {
   })
   
   
+  ######################
+  #   Opportunities  #
+  ######################
+  
+  
+  output$sectorCorrelations_text1 <- renderText({
+    paste("Period :",strftime(input$dt_start,format = '%d%b%y')," - ",strftime(input$dt_end,format = '%d%b%y'),sep="")
+    })
+  
+  
+  output$sectorCorrelations_text2 <- renderText({
+    x <- fn_corTopBottom(correl())
+    paste('For example : The daily price returns of '
+          ,x[order(-value)][1]$var1
+          ,' and '
+          ,x[order(-value)][1]$var2
+          ,' shows a high correlation of '
+          ,round(x[order(-value)][1]$value,2)
+          ,' for the selected period'
+          ,sep="")
+  })
+  
+  correl <- reactive({
+    fn_opp_SectorCorrelations(DT_hist()[country == 'Australia' & category == 'stock'
+                                                & date >= input$dt_start & date <= input$dt_end])
+  })
+  
+  output$sectorCorrelations_plot <- renderPlot({
+    ggcorrplot::ggcorrplot(correl(), hc.order = F, type = "lower",lab=TRUE,lab_size = 4)
+                           #,title = "Log of Daily Returns - Sector Correlations")
+    # +
+    #   theme(axis.text.x = element_text(margin=margin(-2,0,0,0)),  # Order: top, right, bottom, left
+    #         axis.text.y = element_text(margin=margin(0,-2,0,0)))
+    # 
+    # https://stackoverflow.com/questions/41269593/customize-ggcorrplot
+    # ggplot(melt(correl()), aes(Var1, Var2, fill=value)) +
+    #   geom_tile(height=0.8, width=0.8) +
+    #   scale_fill_gradient2(low="blue", mid="white", high="red") +
+    #   theme_minimal() +
+    #   coord_equal() +
+    #   labs(x="",y="",fill="Corr") +
+    #   theme(axis.text.x=element_text(size=13, angle=45, vjust=1, hjust=1,
+    #                                  margin=margin(-3,0,0,0)),
+    #         axis.text.y=element_text(size=13, margin=margin(0,-3,0,0)),
+    #         panel.grid.major=element_blank())
+    
+    })
+  
+  
+  output$sectorCorrelations_table <- render_tableHTML({
+    
+    x <- fn_corTopBottom(correl())
+    
+    x[,value:=round(value,2)]
+    
+    setnames(x,c('var1','var2','value'),c('Sector 1','Sector 2','Correlation Coefficient'))
+    rbind(x[order(-`Correlation Coefficient`)][1:10]
+          ,x[order(`Correlation Coefficient`)][1:10][order(-`Correlation Coefficient`)]
+          ,fill=T) %>% 
+      tableHTML(row_groups = list(c(10, 10), c('Top Ten', 'Bottom Ten'))
+                ,widths = c(100,180,180,80)
+                ,rownames = F
+                ,spacing = '4px') %>%
+      add_theme('rshiny-blue')
+    })
+  
+  
+  
+  
+  ### Risk Rewards
+  
+  output$riskReward_sectorLov <- renderUI({
+    selectInput("riskReward_sectorLov",label = "Choose Sector",choices = c('ALL',unique(DT_stats()[category == 'stock']$sector)))
+    })
+  
+  
+  
+  output$riskReward_excludeStocksLov <- renderUI({
+    selectInput("riskReward_excludeStocksLov",label = "Exclude Stocks"
+                ,choices = unique(DT_stats()[category == 'stock']$name)
+                ,multiple = T)
+  })
+  
+  
+  DT_riskReward <- reactive({ 
+    req(input$riskReward_sectorLov )
+    if(input$riskReward_sectorLov == 'ALL'){
+      fn_opp_RiskReward(DT_hist()[country == 'Australia' & category == 'stock' 
+                                  & !name %in% input$riskReward_excludeStocksLov
+                                  & date >= input$dt_start & date <= input$dt_end])  
+    }else{
+      fn_opp_RiskReward(DT_hist()[country == 'Australia' & category == 'stock' 
+                                  & !name %in% input$riskReward_excludeStocksLov
+                                  & sector == input$riskReward_sectorLov
+                                  & date >= input$dt_start & date <= input$dt_end])  
+    }
+    
+  })
+  
+  output$riskReward_plot <- renderPlot({
+    DT_riskReward() %>% 
+      ggplot(aes(x=risk,y=reward)) +
+      geom_point(aes(color=risk,size=reward)) +
+      facet_wrap(~sector,ncol=3) +
+      geom_text_repel(aes(label=name),size=4) + #,scales="free") 
+      theme(strip.text.x = element_text(size = 12)
+            ,axis.title = element_text(size = 16)
+            ,axis.text = element_text(size = 16)) +
+      scale_color_gradient(low = "green", high = "red", na.value = NA)
+    
+    })
+  
+  output$riskReward_table <- render_tableHTML({
+    
+    DT_riskReward() %>% 
+      tableHTML(rownames = F
+                ,widths = c(80,180,180,80,80)) %>%
+      add_theme('rshiny-blue')
+    
+    # row_groups = list(c(10, 10), c('Top Ten', 'Bottom Ten'))
+    #             ,widths = c(100,180,180,80)
+    #             ,rownames = F
+    #             ,spacing = '4px') %>%
+    #   add_theme('rshiny-blue')
+    
+  })
+  
+  
+  
   
   
 
+  
       
 }#end Server
 

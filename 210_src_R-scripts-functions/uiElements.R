@@ -134,25 +134,52 @@ fnUI_deepAnalyse <- function(){
 fnUI_charts <- function(){
     
     fluidPage(fluidRow(box(width = 12,solidHeader = T,background = "navy"
-                           ,column(width = 4,h3("Technical Charts and Forecasts"))
-                           ,column(width = 2,uiOutput("lovCharts_all")))
+                           ,column(width = 2,h3("Technical Analysis for :"))
+                           ,column(width = 3,uiOutput("lovCharts_all")))
                        )
-              ,fluidRow(column(width=3
-                               ,style='padding:0px;'
-                               ,box(width = 12,solidHeader = T,background = "navy"
-                                    #,htmlOutput('txt_chartingNotes')
-                                    ,span(htmlOutput('txt_chartingNotes'), style="color:white;font-size:11px")
-                                    
-                                    ))
-                        
-                        
-                        
-                        ,column(width = 5
+              ,fluidRow(column(width = 6
                                 ,style='padding:0px;margin:0px;'
-                                ,box(width = 12,solidHeader = T,background = "navy",height = 20+ PLOT_HEIGHT*1.5
-                                     ,plotOutput('plotCharts_technicalChart')))
-                        
+                                ,box(width = 12,solidHeader = T,background = "navy",height = PLOT_HEIGHT*1.7
+                                     ,plotOutput('plotCharts_technicalChart')
+                                     ,title = "Technical Indicators"))
+                        ,column(width = 6
+                                ,fluidRow(column(width=12
+                                                 ,style='padding:0px;'
+                                                 ,box(width = 12,solidHeader = T,background = "navy"
+                                                      ,title = "Last 6 day prices | Highs and Lows"
+                                                      ,tableHTML_output('charts_tblKPI')))
+                                          ,column(width=12
+                                                  ,style='padding:0px;'
+                                                  ,box(width = 12,solidHeader = T,background = "navy"
+                                                       ,collapsible = T,collapsed = T
+                                                       #,htmlOutput('txt_chartingNotes')
+                                                       ,span(htmlOutput('txt_chartingNotes'), style="color:white;font-size:11px")
+                                                       ,style = paste("height:",PLOT_HEIGHT*1.2,"px;overflow-y: scroll;",sep="")
+                                                       ,title = "Notes on Technical Indicators"))
+                                          ,column(width = 12
+                                                  ,style='padding:0px;margin:0px;'
+                                                  ,box(width = 12,solidHeader = T,background = "navy"
+                                                       #,height = PLOT_HEIGHT*0.9
+                                                       ,collapsible = T,collapsed = T
+                                                       ,title = "Candlestick Cheat sheet"
+                                                       ,imageOutput('charts_Image')))
+                                          ,column(width=12
+                                                  ,style='padding:0px;'
+                                                  ,box(width = 12
+                                                       ,solidHeader = F
+                                                       #,background = "navy"
+                                                       ,collapsible = T,collapsed = T
+                                                       ,title = "OHLC Data"
+                                                       ,dataTableOutput('charts_tblOHLCdata')))
+                                          )
+                                )
                         )
+              # ,fluidRow(column(width = 12
+              #                   ,style='padding:0px;margin:0px;'
+              #                   ,box(width = 12,solidHeader = T,background = "navy"
+              #                        ,collapsible = T,collapsed = T
+              #                        ,title = "Candlestick chart cheat sheet"
+              #                        ,imageOutput('charts_Image'))))
               )
     
     
@@ -161,7 +188,45 @@ fnUI_charts <- function(){
 #ERROR: Invalid color: grey. Valid colors are: red, yellow, aqua, blue, light-blue, green, navy, teal
 #, olive, lime, orange, fuchsia, purple, maroon, black.
 
+fnUI_opportunities <- function(){
+    
+    fluidPage(tabBox(id='oppTabBox'
+                     ,width = 12
+                     ,title = "Experimental Features (ASX only)"
+                     ,side = "right"
+                     ,tabPanel(value = "tab1",title = "Risk Reward"
+                               ,fluidRow(column(width=4,uiOutput('riskReward_sectorLov'))
+                                         ,column(width=4,uiOutput('riskReward_excludeStocksLov')))
+                               ,fluidRow(column(width = 8,plotOutput('riskReward_plot',height = PLOT_HEIGHT*1.7))
+                                         ,column(width = 4,tableHTML_output('riskReward_table')))
 
+                     )
+                     ,tabPanel(value = "tab2",title = "Sector Correlations"
+                               ,h3("Correlation of Daily log returns - Sectorwise")
+                               #,fluidRow(column(width=12,h4(textOutput('sectorCorrelations_text'))))
+                               ,strong(textOutput('sectorCorrelations_text1'))
+                               ,column(width=8,style='padding:0px;'
+                                    ,em("The sector price is a simple mean of the stock prices in that sector.
+                                    The log of the daily returns is then computed for all the dates in the specified period.
+                                        The correlation plot shows the how the sector price movements are related"
+                                        ,textOutput('sectorCorrelations_text2')))
+                               ,br()
+                               ,br()
+                               ,br()
+                               ,br()
+                               ,fluidRow(column(width=5,plotOutput('sectorCorrelations_plot',height = PLOT_HEIGHT))
+                                         ,column(width=7,tableHTML_output('sectorCorrelations_table')))
+                               )
+                     
+                     
+                     
+                     # ,tabPanel(value = "tab3",title = "Monte Carlo Simulations")
+                     # ,tabPanel(value = "tab4",title = "Buy Sell Trading Strategy")
+                     
+                     )
+              
+              )
+}
 
 
 
