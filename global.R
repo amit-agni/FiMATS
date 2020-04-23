@@ -114,8 +114,9 @@ fn_tblKPI <- function(DT_hist,DT_stats,varSymbols){
 
 fn_tblWinnersLosers <- function(DT_hist,DT_realTime){
     
+    #browser()
     temp <- merge(DT_hist[,.(name,date,close=round(close,1))]
-                  ,DT_realTime[,.(name,last=round(last,1))]
+                  ,DT_realTime[,.(name,last=round(Last,1))]
                   ,by="name")
     
     temp[,growth := round(100*(last/close-1),1)]
