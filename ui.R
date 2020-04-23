@@ -49,7 +49,7 @@ shinydashboard::dashboardPage(
                                              ,menuItem("My Investments",tabName = 'menu_myShares',icon = icon("list-alt"),startExpanded = F)
                                              #,menuItem("Deep Dive",tabName = "menu_deepDive",icon = icon("swimmer"),startExpanded = F)
                                              ,menuItem("Technical Analysis",tabName = "menu_charts",icon = icon("chart-line"),startExpanded = F)
-                                             ,menuItem("Lab",tabName = 'menu_opportunities',icon = icon("unlock"),startExpanded = F)
+                                             ,menuItem("Labs",tabName = 'menu_opportunities',icon = icon("unlock"),startExpanded = F)
                                              ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
                                              ,menuItem("Common Parameters",icon=icon("sliders-h"),startExpanded = T
                                              # ,column(width = 12,strong("Enable Realtime")
@@ -65,7 +65,7 @@ shinydashboard::dashboardPage(
                                              #                               ,inline = F)
                                              ,dateInput("dt_start",label = "Start Date",value = Sys.Date()-60,format = "dd-M-yy")
                                              ,dateInput("dt_end",label = "End Date",format = "dd-M-yy")
-                                             ,radioButtons('radio_realTimeYN',label="Show Realtime"
+                                             ,radioButtons('radio_realTimeYN',label="Enable Realtime"
                                                            ,choices = c("Yes","No"),selected = "No",inline = T)
                                              ,sliderInput("slider_realTimeDelay","Realtime Delay (in secs)",min=2,max=60,value=6,ticks = F,step = 2)
                                              ,hr()

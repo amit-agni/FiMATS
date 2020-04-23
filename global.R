@@ -112,6 +112,18 @@ fn_tblKPI <- function(DT_hist,DT_stats,varSymbols){
 
 
 
+fn_tblWinnersLosers <- function(DT_hist,DT_realTime){
+    
+    temp <- merge(DT_hist[,.(name,date,close=round(close,1))]
+                  ,DT_realTime[,.(name,last=round(last,1))]
+                  ,by="name")
+    
+    temp[,growth := round(100*(last/close-1),1)]
+    
+    temp[order(growth)]
+}
+
+
 fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPerPage=NULL){
     
     #browser()
@@ -383,7 +395,7 @@ fn_corTopBottom <- function(correl){
 
 fn_opp_SectorCorrelations <- function(DT_hist){
     
-    temp <- DT_hist[,.(close=mean(close)),.(date,sector)]
+    temp <- DT_hist[,.(close=mean(close,na.rm = T)),.(date,sector)]
     
     #Difference of log of lag differences
     n <- 1L

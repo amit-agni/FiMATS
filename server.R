@@ -314,6 +314,35 @@ server <- function(input, output, session) {
       
     })
     
+    DT_realTimeWinnersLosers <- reactive({
+      
+    })
+    
+    if(input$radio_realTimeYN == "Yes") {
+      #browser()
+      #req(DT_realTime())
+      output$tblEagle_Winners <- renderDataTable({ 
+        isolate({
+          fn_tblWinnersLosers(DT_hist=DT_hist()[eval(parse(text = varEagle_parameters))][
+            ,lapply(.SD, function(x) tail(x,1)),symbol]
+            ,DT_realTime = DT_realTime()[eval(parse(text = varEagle_parameters))][
+              ,lapply(.SD, function(x) tail(x,1)),symbol]) %>%
+            datatable(rownames = F) %>%
+            formatRound(.,c(3:5), 1) 
+          
+        })
+        
+        },options=list(pageLength = 5
+                       #,lengthMenu = c(2, 12, 18)
+                       ,searching= FALSE
+                       ,columnDefs = list(list(className = 'dt-center'))
+                       ,rowCallback = JS("function(r,d) {$(r).attr('height', '20px')}")
+                       #,class="compact"
+                       ,class = 'white-space: nowrap stripe hover'
+        ))
+    }
+    
+    
   }) #end observe
   
   
@@ -526,7 +555,8 @@ server <- function(input, output, session) {
     req(input$lovCharts_all)
     
     datatable(DT_hist()[name == input$lovCharts_all & date >= input$dt_start & date <= input$dt_end][
-      order(-date)][,.(date,open,high,low,close,volume,adjusted)]) %>%
+      order(-date)][,.(date,open,high,low,close,volume,adjusted)]
+      ,rownames = F) %>%
       formatRound(.,c(2:8), 0) 
       
     #   formatStyle(columns = c(1:3), 'text-align' = 'center')
@@ -588,7 +618,7 @@ server <- function(input, output, session) {
   
   
   ######################
-  #   Opportunities  #
+  #   Experiments  #
   ######################
   
   

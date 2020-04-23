@@ -77,9 +77,11 @@ fnUI_eagleEye <- function(){
         fluidRow(column(width = 12,uiOutput("valueBoxes_eagle"))
              ,fluidRow(
                  column(width=2,uiOutput("boxEagle_additionalParameters"))
-                 ,column(width = 10,uiOutput("box_plotEagle")
-                         ,tags$style(type="text/css", "#box_plotEagle.recalculating { opacity: 1.0; }")
-                 )
+                 ,column(width = 7,uiOutput("box_plotEagle")
+                         ,tags$style(type="text/css", "#box_plotEagle.recalculating { opacity: 1.0; }"))
+                 ,column(width=3,
+                         box(collapsible = T,solidHeader = T,width = NULL,status = "info",title = "Winners and Losers (Enable RealTime)"
+                             ,dataTableOutput('tblEagle_Winners')))
                  )
              )
         )
@@ -146,7 +148,7 @@ fnUI_charts <- function(){
                                 ,fluidRow(column(width=12
                                                  ,style='padding:0px;'
                                                  ,box(width = 12,solidHeader = T,background = "navy"
-                                                      ,title = "Last 6 day prices | Highs and Lows"
+                                                      ,title = "Prices for the last six sessions + Highs and Lows"
                                                       ,tableHTML_output('charts_tblKPI')))
                                           ,column(width=12
                                                   ,style='padding:0px;'
