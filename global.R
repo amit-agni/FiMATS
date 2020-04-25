@@ -114,7 +114,6 @@ fn_tblKPI <- function(DT_hist,DT_stats,varSymbols){
 
 fn_tblWinnersLosers <- function(DT_hist,DT_realTime){
     
-    #browser()
     temp <- merge(DT_hist[,.(name,date,close=round(close,1))]
                   ,DT_realTime[,.(name,last=round(Last,1))]
                   ,by="name")
@@ -157,7 +156,7 @@ fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPer
         scale_x_date(date_breaks = fnHelper_dateBreaks(var_countDates)
                      ,date_labels = fnHelper_dateLabels(var_countDates)
         ) +
-        cutlery::theme_darklightmix(color_theme = "lightcyan",legend_position = "right") +
+        cutlery::theme_darklightmix(color_theme = "lightcyan",legend_position = "bottom") +
         theme(strip.text.x = element_text(size = 14, colour = "black")
               ,plot.background = element_rect(fill = 'white'))
 
@@ -437,4 +436,41 @@ fn_opp_RiskReward <- function(DT_hist){
     
 }
 
+
+
+### Monte Carlo functions
+#Common functions
+fn_mungeMatrix <- function(matrix){
+    DT <- data.table(matrix)
+    setnames(DT,names(DT),paste('sim',1:ncol(DT),sep="_"))
+    DT$session <- seq(1:nrow(DT))
+    setcolorder(DT,"session")
+    DT
+}
+
+fn_plotSimulations <- function(DT){
+    DT %>% 
+        melt(id.vars = "session") %>%
+        ggplot(aes(x=session,y=value,color=variable)) +
+        geom_line(alpha = 0.3) +
+        cutlery::theme_darklightmix(color_theme = "lightcyan",legend_position = "bottom") +
+        theme(strip.text.x = element_text(size = 14, colour = "black")
+              ,plot.background = element_rect(fill = 'white')
+              ,legend.position = "none")
+}
+
+
+#Random Walk - Normal distribution
+fn_randomWalk <- function(price,mean,sd){
+    price * exp(rnorm(1,mean,sd))
+}
+
+#Brownian motion
+fn_brownianMotion <- function(price, n, mean, sd){
+    delta_t <- 1/n # one period
+    epsilon <- runif(n=1, min=0, max=1) # random generated number
+    # calculate stock price (using quantile function of normal distribution)
+    price * (1 + qnorm(epsilon, mean * delta_t, sd * sqrt(delta_t)))
+    
+}
 

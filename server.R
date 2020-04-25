@@ -744,6 +744,99 @@ server <- function(input, output, session) {
     
   })
   
+  ## Monte Carlo
+  output$monteCarlo_stockLOV <- renderUI({
+    selectInput("monteCarlo_stockLOV",label = "Choose Stock",choices = DT_stats()[category == 'stock']$name)
+  })
+  
+  
+  DT_monteCarlo <- reactive({
+    req(input$monteCarlo_stockLOV)
+    temp <- DT_hist()[name==input$monteCarlo_stockLOV,.(category,symbol,date,close,sector,country,name)]
+    n <- 1L
+    temp[,`:=`(close_log = log(close)
+               ,close_shift = shift(close,n=n,type = "lag")
+               ,close_shiftlog = shift(log(close),n=n,type = "lag")
+               ,close_DiffLagLog = log(close)-shift(log(close),n=n,type = "lag"))
+         ,by = symbol]
+    # temp[,`:=`(close_log = (close)
+    #            ,close_shift = shift(close,n=n,type = "lag")
+    #            ,close_shiftlog = shift((close),n=n,type = "lag")
+    #            ,close_DiffLagLog = (close-shift((close),n=n,type = "lag"))/shift((close),n=n,type = "lag")
+    # ),by = symbol]
+    
+    temp
+  })
+  
+  observe({
+    mean <- mean(DT_monteCarlo()$close_DiffLagLog,na.rm = T)
+    sd <- sd(DT_monteCarlo()$close_DiffLagLog,na.rm = T)
+    price <- DT_monteCarlo()[order(-date)][1]$close
+    
+    days <- input$monteCarlo_sliderForecastPeriod
+    simulations <- input$monteCarlo_sliderSimulations
+    
+    
+    if(input$monteCarlo_type =='Random Walk'){
+      matrix <- matrix(NA,nrow=days,ncol=simulations)
+      for(col in 1:ncol(matrix)){
+        matrix[1,col]<-price
+        for(row in 2:nrow(matrix)){
+          matrix[row,col] <- fn_randomWalk(matrix[row-1,col],mean,sd)
+        }
+      }
+      
+    }else{
+      matrix <- matrix(NA,nrow=days,ncol=simulations)
+      for(col in 1:ncol(matrix)){
+        matrix[1,col]<-price
+        for(row in 2:nrow(matrix)){
+          matrix[row,col] <- fn_brownianMotion(matrix[row-1,col],row,mean,sd)
+        }
+      }
+      
+    }
+    
+    DT <- fn_mungeMatrix(matrix)
+    
+    output$monteCarlo_expectedPrice <- renderText({
+      paste("Current Stock price:",round(price,1)
+            ,". Simulated Stock price at the end of "
+            ,days,"days is:",round(quantile(DT[session == max(DT$session)][,-1],probs = 0.5),1)
+            ,"(Confidence probability : 50%)")
+      
+    })
+    output$monteCarlo_simulationsPlot <- renderPlot({
+      fn_plotSimulations(DT)  +
+        labs(title = paste("Movement of stock prices for",days,"days over",simulations,"Monte Carlo simulations")
+             ,ylab ="Stock price")
+    },height=PLOT_HEIGHT)
+    
+    output$monteCarlo_historgram  <- renderPlot({
+      DT[session == max(DT$session)] %>%
+        melt(id.var="session") %>%
+        ggplot(aes(x=value)) +
+        geom_histogram(bins = 15) +
+        cutlery::theme_darklightmix(color_theme = "lightcyan",legend_position = "bottom") +
+        theme(strip.text.x = element_text(size = 14, colour = "black")
+              ,plot.background = element_rect(fill = 'white')
+              ,legend.position = "none") +
+        labs(title = paste("Distribution of the simulated stock price after",max(DT$session),"days")
+             ,subtitle = paste("Current Stock price:",round(price,1))
+             ,xlab ="Stock price")
+    },height=PLOT_HEIGHT)
+    
+    output$monteCarlo_probabilities <- render_tableHTML({
+      quantile(DT[session == max(DT$session)][,-1]
+               ,probs = c(0,0.05,0.25,0.5,0.75,0.95,1))  %>% 
+        tableHTML(rownames = F
+                  #,caption = "Probabilities"
+                  ,round=1)
+    })
+    
+    
+  })
+  
   
   
   

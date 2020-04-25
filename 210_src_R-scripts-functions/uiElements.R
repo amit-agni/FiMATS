@@ -187,19 +187,21 @@ fnUI_charts <- function(){
     
 }
 
-#ERROR: Invalid color: grey. Valid colors are: red, yellow, aqua, blue, light-blue, green, navy, teal
-#, olive, lime, orange, fuchsia, purple, maroon, black.
 
 fnUI_opportunities <- function(){
     
     fluidPage(tabBox(id='oppTabBox'
                      ,width = 12
-                     ,title = "Experimental Features (ASX only)"
-                     ,side = "right"
+                     ,title = "Experimental Features (Australian stocks only)"
+                     ,side = "left"
                      ,tabPanel(value = "tab1",title = "Risk Reward"
-                               ,fluidRow(column(width=4,uiOutput('riskReward_sectorLov'))
-                                         ,column(width=4,uiOutput('riskReward_excludeStocksLov')))
-                               ,fluidRow(column(width = 8,plotOutput('riskReward_plot',height = PLOT_HEIGHT*1.7))
+                               ,h3("Risks vs Rewards for the selected period")
+                               ,p("Reward is the mean of the log of the daily returns in the selected period and Risk is the corresponding standard deviation")
+                               
+                               ,fluidRow(box(width = 12,solidHeader = T,background = "olive"
+                                             ,column(width=4,uiOutput('riskReward_sectorLov'))
+                                             ,column(width=4,uiOutput('riskReward_excludeStocksLov'))))
+                               ,fluidRow(column(width = 8,plotOutput('riskReward_plot',height = PLOT_HEIGHT*1.5))
                                          ,column(width = 4,tableHTML_output('riskReward_table')))
 
                      )
@@ -208,7 +210,7 @@ fnUI_opportunities <- function(){
                                #,fluidRow(column(width=12,h4(textOutput('sectorCorrelations_text'))))
                                ,strong(textOutput('sectorCorrelations_text1'))
                                ,column(width=8,style='padding:0px;'
-                                    ,em("The sector price is a simple mean of the stock prices in that sector.
+                                    ,p("The sector price is a simple mean of the stock prices in that sector.
                                     The log of the daily returns is then computed for all the dates in the specified period.
                                         The correlation plot shows the how the sector price movements are related"
                                         ,textOutput('sectorCorrelations_text2')))
@@ -222,13 +224,48 @@ fnUI_opportunities <- function(){
                      
                      
                      
-                     # ,tabPanel(value = "tab3",title = "Monte Carlo Simulations")
-                     # ,tabPanel(value = "tab4",title = "Buy Sell Trading Strategy")
+                      ,tabPanel(value = "tab3",title = "Simulations"
+                                ,h3("Monte Carlo Simulations")
+                                ,fluidRow(box(width = 12,solidHeader = T,background = "olive"
+                                              ,column(width=3,uiOutput('monteCarlo_stockLOV'))
+                                              ,column(width = 3,radioButtons('monteCarlo_type'
+                                                                         ,label="Simulation Type"
+                                                                         ,choices = c("Random Walk","Brownian Motion")
+                                                                         ,inline = T))
+                                              ,column(width = 3,sliderInput('monteCarlo_sliderForecastPeriod'
+                                                                        ,label="Forecast horizon:"
+                                                                        ,min = 1,max = 1000, value = 100))
+                                              ,column(width = 3,sliderInput('monteCarlo_sliderSimulations'
+                                                                        ,label="Number of Simulations:"
+                                                                        ,min = 1,max = 5000, value = 100))
+                                )
+                                          
+                                )
+                                ,fluidRow(column(width=12,h4(strong(textOutput('monteCarlo_expectedPrice'))))
+                                          ,column(width=4,
+                                                 fluidRow(column(width=12
+                                                                  ,plotOutput('monteCarlo_historgram'))
+                                                          ,column(width=12
+                                                                  ,br()
+                                                                  ,br()
+                                                                  ,br()
+                                                                  ,br()
+                                                                  ,br()
+                                                                  ,strong("Confidence Intervals for the simulated stock prices")
+                                                                  ,p("We can say with 95% confidence that the stock price will lie between the values shown under 5% and 95% below")
+                                                                  ,tableHTML_output('monteCarlo_probabilities'))))
+                                          ,column(width = 8,plotOutput('monteCarlo_simulationsPlot')))
+                                )
+                      ,tabPanel(value = "tab4",title = "Buy Sell Trading Strategy")
                      
                      )
               
               )
 }
+
+
+#ERROR: Invalid color: grey. Valid colors are: red, yellow, aqua, blue, light-blue, green, navy, teal
+#, olive, lime, orange, fuchsia, purple, maroon, black.
 
 
 

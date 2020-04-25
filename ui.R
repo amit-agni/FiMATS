@@ -38,7 +38,7 @@ shinydashboard::dashboardPage(
                                                             ,br()
                                                             ,span(textOutput('text_LatestDate')
                                                                  ,style="color:white;font-size:10px;")
-                                                            ,span("(Best viewed on a Desktop PC, not yet mobile-friendly)"
+                                                            ,span("(Best viewed on a Desktop PC or Mobile Landscape mode)"
                                                                   ,style="color:white;font-size:10px;font-style:italic")
                                              )
 
