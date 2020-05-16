@@ -1,44 +1,8 @@
-#if(!require(pacman)) { install.packages("pacman"); library(pacman)}
+####    Functions used in the project     ####
 
-library(here)
-library(data.table)
-library(tidyverse)
-
-library(shiny)
-library(shinydashboard)
-library(shinybusy)
-library(shinycssloaders) #spinner busy
-library(shinyWidgets) #sweetalert #switchinput
-
-library(quantmod)
-library(tidyquant)
-
-library(kableExtra)
-library(gridExtra)
-library(tableHTML) #make_css
-library(ggrepel)
-library(batchtools)
-library(assertive.types) #needed for gg_facet_nrow()
-       
-library(plotly)
-library(DT)
-
-
-rm(list = ls())
-
-
-source(here::here("210_src_R-scripts-functions","uiElements.R"))
-
-# DT_stats <- reactive(readRDS(file=here::here("100_data_raw-input","DT_stats.Rds")))
-# DT_hist <- reactive(readRDS(file=here::here("100_data_raw-input","DT_hist.Rds")))
-# DT_myShares <- reactive(readRDS(file=here::here("100_data_raw-input","DT_myShares.Rds")))
-
-
-PLOT_HEIGHT <- 500
-FACET_ROW_HEIGHT <- 250
-NO_OF_VALUE_BOXES <- 12
-
-
+#######################################################
+################    1. Data Load     ##################
+#######################################################
 what_metrics <- quantmod::yahooQF(c("Name (Long)"
                                     ,"Market Capitalization"
                                     , "Price/Sales"
@@ -61,19 +25,9 @@ what_metrics <- quantmod::yahooQF(c("Name (Long)"
                                     , "Percent Change From 50-day Moving Average"
                                     , "200-day Moving Average"
                                     , "Percent Change From 200-day Moving Average"
-                                    , "Last Trade (Price Only)"                 
-                                    , "Last Trade Time"  
+                                    , "Last Trade (Price Only)"
+                                    , "Last Trade Time"
 ))
-
-
-
-
-##############################################
-####    Functions used in the project     ####
-##############################################
-
-
-################    1. Data Load     ################
 
 fn_getData_DTStats <- function(DT_yahooCodes){
     #For those symbols, get the key stats. what_metrics is defined in global.R
@@ -158,8 +112,9 @@ fn_getData_DTrealTime <- function(DT_stats){
     
 }
 
-
+#################################################
 ################    2. Plots     ################
+#################################################
 
 fn_plotYTD <- function(DT_hist,dt_start,dt_end,varSymbols,DT_myShares,displayPerPage=NULL){
     
@@ -261,8 +216,9 @@ fn_plotRealTime <- function(DT_realTime,varSymbols,DT_myShares,displayPerPage=NU
 
 
 
-
+##################################################
 ################    2. Tables     ################
+##################################################
 
 
 fn_tblKPI <- function(DT_hist,DT_stats,varSymbols){
@@ -319,7 +275,9 @@ fn_tblWinnersLosers <- function(DT_hist,DT_realTime){
 
 
 
+################################################
 ################    4. Labs     ################
+################################################
 
 ################    4.1 Correlations     ################
 
@@ -369,7 +327,7 @@ fn_opp_RiskReward <- function(DT_hist){
                  ,.(symbol,name,sector)]
     
     temp
-        
+    
     
     
     
@@ -416,7 +374,9 @@ fn_brownianMotion <- function(price, n, mean, sd){
 
 
 
+###################################################
 ################    n. Helpers     ################
+###################################################
 
 fnHelper_shinyBusy <- function(value,text="in progress",session=NULL){
     if(value==T){

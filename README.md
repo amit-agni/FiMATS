@@ -6,14 +6,17 @@ stock prices.
 -   Following features are currently implemented :
     -   Loading of `Yahoo! Finance` stock codes using a CSV file. The
         file should have these column names :
-        symbol,name,sector,country,type. symbol and type are mandatory
+        country,category,sector,symbol,name
     -   The stocks owned by the user can be added using a CSV file with
         these mandatory fields :
         symbol,transaction\_date,transaction\_type,price,qty
     -   Live realtime stock prices
+    -   Technical analysis for the chosen stock
+    -   Experimental Features
+        -   The Australian stocks are placed on Risk Reward chart
+        -   Correlation of the log returns for different sectors
+        -   Monte Carlo Simulations
 -   In the pipeline
-    -   AWS integration
+    -   Cloud integration (AWS/Dropbox)
     -   Stock price forecasting
     -   Identifying opportunities to invest
-
-**This file was created using the README.Rmd document**
