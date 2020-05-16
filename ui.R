@@ -45,11 +45,10 @@ shinydashboard::dashboardPage(
                                              )
                                              
                                              ,br()
-                                             ,menuItem("Markets Overview",tabName = 'menu_eagleEye',icon = icon("globe-americas"),startExpanded = F)
-                                             ,menuItem("My Investments",tabName = 'menu_myShares',icon = icon("list-alt"),startExpanded = F)
-                                             #,menuItem("Deep Dive",tabName = "menu_deepDive",icon = icon("swimmer"),startExpanded = F)
-                                             ,menuItem("Technical Analysis",tabName = "menu_charts",icon = icon("chart-line"),startExpanded = F)
-                                             ,menuItem("Labs",tabName = 'menu_opportunities',icon = icon("unlock"),startExpanded = F)
+                                             ,menuItem("Markets Overview",tabName = 'menu_overview',icon = icon("globe-americas"),startExpanded = F)
+                                             ,menuItem("My Investments",tabName = 'menu_myInvestments',icon = icon("list-alt"),startExpanded = F)
+                                             ,menuItem("Technical Analysis",tabName = "menu_technicalAnalysis",icon = icon("chart-line"),startExpanded = F)
+                                             ,menuItem("Labs",tabName = 'menu_labs',icon = icon("unlock"),startExpanded = F)
                                              ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
                                              ,menuItem("Common Parameters",icon=icon("sliders-h"),startExpanded = T
                                              # ,column(width = 12,strong("Enable Realtime")
@@ -65,9 +64,10 @@ shinydashboard::dashboardPage(
                                              #                               ,inline = F)
                                              ,dateInput("dt_start",label = "Start Date",value = Sys.Date()-60,format = "dd-M-yy")
                                              ,dateInput("dt_end",label = "End Date",format = "dd-M-yy")
+                                             #,uiOutput("sideBardynamicParams")
                                              ,radioButtons('radio_realTimeYN',label="Enable Realtime"
                                                            ,choices = c("Yes","No"),selected = "No",inline = T)
-                                             ,sliderInput("slider_realTimeDelay","Realtime Delay (in secs)",min=2,max=60,value=6,ticks = F,step = 2)
+                                             ,sliderInput("slider_realTimeDelay","Realtime Delay (in secs)",min=5,max=60,value=10,ticks = F,step = 5)
                                              ,hr()
                                              #,checkboxGroupInput('chkb_movAvgs',label = "Moving averages",choices = c("50-day MA","100-day MA","200-day MA"),inline = F)
                                              #,br()
@@ -78,11 +78,10 @@ shinydashboard::dashboardPage(
     ,body = dashboardBody(
       
       tabItems(
-        tabItem(tabName = "menu_eagleEye",fnUI_eagleEye())
-        ,tabItem(tabName = "menu_myShares",fnUI_myShares())
-        #,tabItem(tabName = "menu_deepDive",fnUI_deepAnalyse())
-        ,tabItem(tabName = "menu_charts",fnUI_charts())
-        ,tabItem(tabName = "menu_opportunities",fnUI_opportunities())
+        tabItem(tabName = "menu_overview",fnUI_overview())
+        ,tabItem(tabName = "menu_myInvestments",fnUI_myInvestments())
+        ,tabItem(tabName = "menu_technicalAnalysis",fnUI_technicalAnalysis())
+        ,tabItem(tabName = "menu_labs",fnUI_labs())
         ,tabItem(tabName = "menu_dataRefresh",fnUI_dataRefresh())
         
 
