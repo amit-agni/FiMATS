@@ -21,7 +21,7 @@ fnUI_labs <- function(){
                      ,tabPanel(value = "tab2",title = "Sector Correlations"
                                ,h3("Correlation of Daily log returns - Sectorwise")
                                #,fluidRow(column(width=12,h4(textOutput('sectorCorrelations_text'))))
-                               ,strong(textOutput('sectorCorrelations_text1'))
+                               #,strong(textOutput('sectorCorrelations_text1'))
                                ,column(width=8,style='padding:0px;'
                                        ,p("The sector price is a simple mean of the stock prices in that sector.
                                     The log of the daily returns is then computed for all the dates in the specified period.
@@ -86,9 +86,9 @@ fnServer_labs <- function(input,output,session){
     
     ######################     1. Correlations     #######################
     
-    output$sectorCorrelations_text1 <- renderText({
-        paste("Period :",strftime(input$dt_start,format = '%d%b%y')," - ",strftime(input$dt_end,format = '%d%b%y'),sep="")
-    })
+    # output$sectorCorrelations_text1 <- renderText({
+    #     paste("Period :",strftime(input$dt_start,format = '%d%b%y')," - ",strftime(input$dt_end,format = '%d%b%y'),sep="")
+    # })
     
     
     output$sectorCorrelations_text2 <- renderText({
@@ -99,7 +99,8 @@ fnServer_labs <- function(input,output,session){
               ,x[order(-value)][1]$var2
               ,' shows a high correlation of '
               ,round(x[order(-value)][1]$value,2)
-              ,' for the selected period'
+              ,' for the selected period : '
+              ,strftime(input$dt_start,format = '%d%b%y')," - ",strftime(input$dt_end,format = '%d%b%y')
               ,sep="")
     })
     

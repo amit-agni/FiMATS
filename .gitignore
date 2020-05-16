@@ -1,3 +1,5 @@
+data/
+extras/
 rsconnect/
 100_data_raw-input/
 110_data_intermediate/

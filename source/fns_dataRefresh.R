@@ -62,7 +62,7 @@ fnUI_dataRefresh <- function(){
 ###############     Called from server.R      ################
 fnServer_dataRefresh <- function(input,output,session){
     
-    
+
     observe({
         req(DT_hist()$date)
         output$text_LatestDate <- renderText(paste("Data updated until :",strftime(max(DT_hist()$date),format="%a %d-%b-%y")))
@@ -83,9 +83,9 @@ fnServer_dataRefresh <- function(input,output,session){
         DT_hist(DT_hist_temp)   #assign value to the reactiveVal
         
         if (input$radio_saveDataYN == "Yes") {
-            saveRDS(DT_stats_temp,file = here::here("100_data_raw-input", "DT_stats.Rds"))
+            saveRDS(DT_stats_temp,file = here::here(DATA_FOLDER, "DT_stats.Rds"))
             saveRDS(cbind(DT_hist_temp, data.frame(timestamp = Sys.time()))
-                    ,file = here::here("100_data_raw-input", "DT_hist.Rds")
+                    ,file = here::here(DATA_FOLDER, "DT_hist.Rds")
             )
         }
         
@@ -95,8 +95,8 @@ fnServer_dataRefresh <- function(input,output,session){
     #Saved Load : Load data from the saved DT_hist and DT_stats
     observeEvent(input$ab_loadSavedData, {
         fnHelper_shinyBusy(T, text = "Data Loading in Progress")
-        DT_stats_temp <- readRDS(file = here::here("100_data_raw-input", "DT_stats.Rds"))
-        DT_hist_temp <- readRDS(file = here::here("100_data_raw-input", "DT_hist.Rds"))
+        DT_stats_temp <- readRDS(file = here::here(DATA_FOLDER, "DT_stats.Rds"))
+        DT_hist_temp <- readRDS(file = here::here(DATA_FOLDER, "DT_hist.Rds"))
         output$txt_histDataStatus <- renderText(paste0("Data loaded, it was last updated on :"
                                                        ,strftime(max(DT_hist_temp$timestamp), format = "%d%b%y %H:%M")))
         DT_stats(DT_stats_temp)
@@ -133,7 +133,7 @@ fnServer_dataRefresh <- function(input,output,session){
                                       ,DT_hist()[!is.na(close)][, .N, .(symbol, name, sector, country, category,date)][,-"N"])
             
             DT_hist_temp <- cbind(rbind(DT_hist(), temp), data.frame(timestamp = Sys.time()))
-            saveRDS(DT_hist_temp,file = here::here("100_data_raw-input", "DT_hist.Rds"))
+            saveRDS(DT_hist_temp,file = here::here(DATA_FOLDER, "DT_hist.Rds"))
             DT_hist(DT_hist_temp)
             output$txt_histDataStatus <- renderText(paste0("Data has been updated, latest timestamp is now :"
                                                            ,strftime(max(DT_hist_temp$timestamp), format = "%d%b%y %H:%M")))
@@ -152,7 +152,7 @@ fnServer_dataRefresh <- function(input,output,session){
         DT_myShares_temp[, transaction_date := lubridate::dmy(transaction_date)]
         
         if (input$radio_saveDataYNMyShares == "Yes") {
-            saveRDS(DT_myShares_temp,file = here::here("100_data_raw-input", "DT_myShares.Rds"))
+            saveRDS(DT_myShares_temp,file = here::here(DATA_FOLDER, "DT_myShares.Rds"))
         }
         DT_myShares(DT_myShares_temp)
         fnHelper_shinyBusy(F, session = session)
@@ -162,7 +162,7 @@ fnServer_dataRefresh <- function(input,output,session){
     observeEvent(input$ab_loadMySharesSaved, {
         fnHelper_shinyBusy(T, text = "Data Loading in Progress")
         
-        DT_myShares_temp <-readRDS(file = here::here("100_data_raw-input", "DT_myShares.Rds"))
+        DT_myShares_temp <-readRDS(file = here::here(DATA_FOLDER, "DT_myShares.Rds"))
         DT_myShares(DT_myShares_temp)
         fnHelper_shinyBusy(F, session = session)
         

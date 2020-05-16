@@ -80,10 +80,10 @@ fnServer_technicalAnalysis <- function(input,output,session){
     ) 
     
     
-    output$txt_chartingNotes <- renderText({ read_file(here::here('100_data_raw-input','charting-notes.html')) })
+    output$txt_chartingNotes <- renderText({ read_file(here::here(DATA_FOLDER,'charting-notes.html')) })
     
     output$charts_Image <- renderImage({
-        return(list(src = here::here("100_data_raw-input","Candlestick-Cheat-Sheet_web-01.jpg")
+        return(list(src = here::here(DATA_FOLDER,"Candlestick-Cheat-Sheet_web-01.jpg")
                     ,contentType = "image/jpg"
                     ,height = "100%"
                     ,width = "100%"))

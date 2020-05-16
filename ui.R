@@ -38,7 +38,7 @@ shinydashboard::dashboardPage(
                                              ,menuItem("Markets Overview",tabName = 'menu_overview',icon = icon("globe-americas"),startExpanded = F)
                                              ,menuItem("My Investments",tabName = 'menu_myInvestments',icon = icon("list-alt"),startExpanded = F)
                                              ,menuItem("Technical Analysis",tabName = "menu_technicalAnalysis",icon = icon("chart-line"),startExpanded = F)
-                                             ,menuItem("Labs",tabName = 'menu_labs',icon = icon("unlock"),startExpanded = F)
+                                             ,menuItem("Labs {WIP}",tabName = 'menu_labs',icon = icon("unlock"),startExpanded = F)
                                              ,menuItem("Data Processing",tabName = "menu_dataRefresh",icon = icon("database"),startExpanded = F)
                                              ,menuItem("Common Parameters",icon=icon("sliders-h"),startExpanded = T
                                                        # ,column(width = 12,strong("Enable Realtime")
