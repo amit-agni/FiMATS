@@ -10,9 +10,7 @@ welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?styl
 FiMATS
 ======
 
-#### Financial Markets Analysis and Tracking System
-
-------------------------------------------------------------------------
+##### Financial Markets Analysis and Tracking System
 
 R Shiny dashboard that can be used for tracking the financial markets.
 The system makes use of the the `Yahoo! Finance` stock codes and the
@@ -36,15 +34,15 @@ The system makes use of the the `Yahoo! Finance` stock codes and the
     -   Stock price forecasting
     -   Identifying opportunities to invest
 -   Code Structure
-    -   ui.R : Shiny file for generating the UI. The UI elements for
+    -   *ui.R* : Shiny file for generating the UI. The UI elements for
         rendering different pages is modularised and the respective
         functions are stored in separate .R files in the source folder
-    -   server.R : Shiny file containing the server logic. Similar to
+    -   *server.R* : Shiny file containing the server logic. Similar to
         the UI elements, the server elements are also stored in separate
         .R files
-    -   global.R : Quoted from the documentation
+    -   *global.R* : Quoted from the documentation
         `Objects defined in global.R are similar to those defined in app.R outside of the server function definition, with one important difference: they are also visible to the code in the ui object. This is because they are loaded into the global environment of the R session; all R code in a Shiny app is run in the global environment or a child of it.`
-    -   data folder : Contains all the data, images and HTML files that
-        are needed in the app
-    -   source folder : Contains the functions that will called in the
+    -   *data folder* : Contains all the data, images and HTML files
+        that are needed in the app
+    -   *source folder* : Contains the functions that will called in the
         app
