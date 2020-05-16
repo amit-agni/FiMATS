@@ -1,0 +1,36 @@
+---
+title: "NOTES"
+author: "Amit Agni"
+date: "23/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if(!require(pacman)) { install.packages("pacman"); library(pacman)}
+p_load(here,data.table,tidyverse,tictoc,shiny)
+
+
+```
+
+# 23apr 20
+
+Deep learning 
+
+Good one : https://towardsdatascience.com/making-a-i-that-looks-into-trade-charts-62e7d51edcba
+https://github.com/rosdyana/Going-Deeper-with-Convolutional-Neural-Network-for-Stock-Market-Prediction
+https://arxiv.org/pdf/1808.00418.pdf
+https://www.groundai.com/project/using-deep-learning-neural-networks-and-candlestick-chart-representation-to-predict-stock-market/1
+
+
+Stock Analysis
+https://towardsdatascience.com/analyzing-stocks-using-r-550be7f5f20d
+Excellent collection of articles
+https://www.quantstart.com/articles/topic/time-series-analysis/
+https://www.quantstart.com/articles/Autoregressive-Integrated-Moving-Average-ARIMA-p-d-q-Models-for-Time-Series-Analysis/
+https://www.quantstart.com/articles/Generalised-Autoregressive-Conditional-Heteroskedasticity-GARCH-p-q-Models-for-Time-Series-Analysis/
+https://www.quantstart.com/articles/ARIMA-GARCH-Trading-Strategy-on-the-SP500-Stock-Market-Index-Using-R/
+
+https://www.r-bloggers.com/an-introduction-to-stock-market-data-analysis-with-r-part-2/
+
+

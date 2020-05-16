@@ -1,0 +1,11 @@
+country,category,sector,symbol,name
+Australia,stock,Consumer Discretionary,ALL.AX,Aristocrat Leisure
+Australia,stock,Health Care,CSL.AX,CSL Limited
+Australia,stock,Information Technology,APT.AX,Afterpay Limited
+Australia,stock,Information Technology,XRO.AX,Xero Limited
+Australia,index,index,^AXJO,ASX 200
+India,index,index,^BSESN,Sensex
+India,stock,Consumer Discretionary,M&M.BO,Mahindra & Mahindra Ltd
+Australia,commodity,commodity,BTC-AUD,Bitcoin AUD
+Australia,currency,currency,AUDUSD=X,AUD-USD
+

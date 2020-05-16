@@ -1,0 +1,13 @@
+symbol,transaction_date,transaction_type,price,qty
+ALL.AX,16-Mar-20,Buy,22.55,35
+CSL.AX,16-Mar-20,Buy,290,3
+MQG.AX,16-Mar-20,Buy,108,8
+RHC.AX,16-Mar-20,Buy,56.5,12
+ALL.AX,25-Mar-20,Sell,20,10
+BOQ.AX,25-Mar-20,Sell,20,10
+BPT.AX,25-Mar-20,Sell,20,10
+BEN.AX,25-Mar-20,Sell,20,10
+BHP.AX,25-Mar-20,Sell,20,10
+BSL.AX,25-Mar-20,Sell,20,10
+BLD.AX,25-Mar-20,Sell,20,10
+BXB.AX,25-Mar-20,Sell,20,10

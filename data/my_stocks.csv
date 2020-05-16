@@ -1,0 +1,7 @@
+symbol,transaction_date,transaction_type,price,qty
+ALL.AX,16-Mar-20,Buy,22.55,35
+CSL.AX,16-Mar-20,Buy,290,3
+MQG.AX,16-Mar-20,Buy,108,8
+RHC.AX,16-Mar-20,Buy,56.5,12
+CSL.AX,09-Apr-20,Sell,322.89,3
+WOW.AX,22-Apr-20,Buy,35.93,25

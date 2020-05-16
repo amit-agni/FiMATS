@@ -1,0 +1,55 @@
+---
+title: ''
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#_**Notes on Technical Indicators shown**_
+
+```
+
+##### Bollinger Bands
+The first section the plot is the Bollinger bands chart. It has three bands. The middle band is the Simple Moving Average of 20 periods. The upper and lower band is the moving average + and - two standard deviations from the moving average.
+It takes into consideration the market volatility i.e *when the market is vibrant it will be reflected in volatility and therefore the bands will widen. Conversely when volatility wanes reflecting a quiet market the bands should logically narrow* 
+
+**How to use Bollinger Bands**  
+
+* Low volatility (order) tends to predicate sharp price changes (chaos) 
+* If and when the market moves outside the bands the move should continue 
+* If the market tops or bottoms, first outside the bands and then within the bands, the market is likely to reverse the recent trend 
+* A move that's starts at one of the upper or lower bands, should go all the way to the other 
+
+---
+
+##### Relative Strength Indicator, RSI
+
+The second section of the plot gives the Relative Strength Indicator : RSI = 100 - [100/(1+RS)]
+RS = Average price change for up days / Average price change for down days
+
+**How to use RSI**  
+
+* The indicator is bounded by the values 0-100 and can be used as an overbought / oversold indicator. 
+* The market is said to be overbought when the indicator is above the 70-80 line and oversold when below the 20-30 region. 
+* A sell signal is activated when the indicator exceeds the overbought line and a buy signal is generated when the indicator hits the oversold line.
+
+---
+
+##### Moving Average Convergence Divergence, MACD
+
+MACD is derived by plotting the difference between two exponential moving averages, with the default parameters of 12 and 26 periods. A second line, the trigger line, is calculated by using a shorter period moving average of the first line, which uses 9 periods by default.
+
+**How to use MACD**  
+
+* A trading signal is generated when the fast line crosses the slow line, in the direction of the cross. 
+*  A buy signal is generated when the blue line crosses above the red line and a sell signal is generated when the blue line crosses below the red line. 
+
+
+
+---
+
+
+**Sources : **
+[ASX Charting library](https://www.asx.com.au/prices/charting-library.htm)
+[ASX Courses](https://www.asx.com.au/education/shares-course.htm)
+
