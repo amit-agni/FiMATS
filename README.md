@@ -1,12 +1,10 @@
 <!-- badges: start -->
-
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![contributions
 welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
 <!-- badges: end -->
-
 FiMATS
 ======
 
@@ -33,6 +31,9 @@ The system makes use of the the `Yahoo! Finance` stock codes and the
     -   Cloud integration (AWS/Dropbox)
     -   Stock price forecasting
     -   Identifying opportunities to invest
+
+![System overview](FiMATSSystemOverview.jpg)
+
 -   Code Structure
     -   **ui.R** : Shiny file for generating the UI. The UI elements for
         rendering different pages is modularised and the respective

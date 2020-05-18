@@ -40,6 +40,10 @@ R Shiny dashboard that can be used for tracking the financial markets. The syste
     + Stock price forecasting 
     + Identifying opportunities to invest
     
+    
+![System overview](FiMATSSystemOverview.jpg)
+
+
 * Code Structure
   + **ui.R** : Shiny file for generating the UI. The UI elements for rendering different pages is modularised and the respective functions are stored in separate .R files in the source folder
   + **server.R** : Shiny file containing the server logic. Similar to the UI elements, the server elements are also stored in separate .R files
